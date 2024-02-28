@@ -19,7 +19,6 @@ public class SeaTradeReceiver extends Thread {
 	private BufferedReader in = null;
 	public PrintWriter out = null;
 	public static String radarCommand = "";
-	public RadarField radarfield = new RadarField(Ground.HAFEN);
 	private ShipApp shipApp;
 	private Cargo loadedCargo = null;
 
@@ -44,33 +43,39 @@ public class SeaTradeReceiver extends Thread {
 
 			System.out.println("Verbindung erfolgreich: " + ShipApp.getHost());
 
-			String line;
+			String line = null;
+			String infoLine = null;
+			String valueLine = null;
 			while ((line = in.readLine()) != null) {
-
+				if (line.contains(":")) {
+					infoLine = line.split(":")[0].toLowerCase();
+					valueLine = line.split(":")[1];
+				}
+				// Autopilot nur vom Hafen aus aktivierbar
+				if (infoLine.equals("reached")) {
+					shipApp.setCenterGround(Ground.HAFEN);
+				} else {
+					if (infoLine.equals("moved")) {
+						shipApp.setCenterGround(Ground.WASSER);
+					}
+				}
 // loaded
-				if (line.contains("loaded:")) {
+				if (infoLine.equals("loaded")) {
 					shipApp.setLoaded(true);
-					loadedCargo = Cargo.parse(line);
+					loadedCargo = Cargo.parse(valueLine);
 				}
 
 // unloaded				
-				if (line.contains("unloaded:")) {
+				if (infoLine.equals("unloaded")) {
 					shipApp.setLoaded(false);
 					shipApp.sendProfit(loadedCargo);
 				}
 
 // Radarnachrichten herausfiltern
-				if (line.contains("radarscreen")) {
-					radarCommand = line.split(":")[1];
+				if (infoLine.equals("radarscreen")) {
+					radarCommand = valueLine;
 				} else {
 					System.out.println(line);
-				}
-
-// Autopilot nur vom Hafen aus aktivierbar
-				if (line.contains("reached")) {
-					radarfield.setGround(Ground.HAFEN);
-				} else {
-					radarfield.setGround(Ground.WASSER);
 				}
 
 // Fehlermeldung

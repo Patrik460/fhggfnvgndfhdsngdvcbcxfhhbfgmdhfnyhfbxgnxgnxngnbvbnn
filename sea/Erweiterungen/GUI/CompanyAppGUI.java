@@ -64,8 +64,7 @@ public class CompanyAppGUI {
 		addLabel(panel, "Balance:", 10, 60, 80, 25);
 		newBalanceLabel = addLabel(panel, "", 80, 60, 160, 25);
 		addButton(panel, "Add Ship", 250, 60, 160, 25, e -> {
-			ShipAppGUI ship = new ShipAppGUI();
-			// TODO: Implement ship list action
+			new ShipAppGUI();
 		});
 		addButton(panel, "Harbours", 80, 100, 160, 25, e -> showHarbourInfo());
 		addButton(panel, "Cargos", 250, 100, 160, 25, e -> showCargoInfo());
@@ -185,7 +184,7 @@ public class CompanyAppGUI {
 		companyApp.distributeOrder();
 	}
 
-	private void sendCommand(String command) {
+	private void sendCommand() {
 		// TODO
 	}
 

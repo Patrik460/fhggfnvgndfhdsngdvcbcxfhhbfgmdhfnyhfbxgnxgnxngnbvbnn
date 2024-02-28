@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -38,9 +39,9 @@ public class ShipAppGUI extends ShipApp {
 
 	public ShipAppGUI() {
 		this.shipApp = new ShipApp();
-
 		loadHarbours();
 		initializeGUI();
+		startSettings();
 	}
 
 	private void loadHarbours() {
@@ -65,19 +66,25 @@ public class ShipAppGUI extends ShipApp {
 		panel = new JPanel();
 		frame.getContentPane().add(panel);
 		placeComponents();
-		startButtons();
+		startSettings();
 
 		frame.setVisible(true);
 	}
 
-	public void startButtons() {
+	public void startSettings() {
 		AllEnabled(false);
 		ButtonsEnabled(true, "Launch");
 		shipNameField.setEditable(true);
 		companyNameField.setEditable(true);
 		harbourDropdown.setEnabled(true);
-		panel.repaint();
 
+		panel.remove(harbourDropdown);
+		panel.remove(destinationDropdown);
+		harbourDropdown = addComboBox(panel, harbours, 100, 100, 160, 25);
+		destinationDropdown = addComboBox(panel, harbours, 100, 140, 160, 25);
+
+		panel.repaint();
+		panel.revalidate();
 	}
 
 	public void placeComponents() {
@@ -102,52 +109,35 @@ public class ShipAppGUI extends ShipApp {
 			String shipName = shipNameField.getText().trim();
 			String companyName = companyNameField.getText().trim();
 			String selectedHarbour = harbourDropdown.getSelectedItem().toString();
-			if (!shipName.isEmpty() && !companyName.isEmpty()) {
-				if (!seaTradeReceiver.isAlive()) {
-					shipApp.setSeaTradeReceiver(new SeaTradeReceiver(this));
-					seaTradeReceiver = shipApp.getSeaTradeReceiver();
-					seaTradeReceiver.start();
-					try {
+			if (harbours.length > 1) {
+				if (!shipName.isEmpty() && !companyName.isEmpty()) {
+					startServer();
+					if (seaTradeReceiver.isAlive()) {
+						shipApp.launch(companyName, selectedHarbour, shipName);
+
 						AllEnabled(true);
 						ButtonsEnabled(false, "Launch");
-						Thread.sleep(1000);
-						shipApp.launch(companyName, selectedHarbour, shipName);
-					} catch (InterruptedException ex) {
-						ex.printStackTrace();
-					}
-				}
-				RadarRequest();
-				String command = SeaTradeReceiver.radarCommand;
-				if (command.contains("error")) {
-					try {
-						startButtons();
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) {
-						ex.printStackTrace();
-					}
-					if (command.contains("level")) {
-						AllEnabled(true);
-						ButtonsEnabled(false, "Up,Down,Left,Right");
-					}
+						checkLevel();
+						RadarRequest();
 
-					SeaTradeReceiver.radarCommand = "";
+					} else {
+						harbours = new String[] { "N/A" };
+						startSettings();
+						showConnectionInformations();
+					}
 				}
+			} else {
+				showConnectionInformations();
 			}
-			RadarRequest();
-
 		});
 		addButton(panel, "Move", 280, 140, 80, 25, e -> {
 			String selectedHarbour = destinationDropdown.getSelectedItem().toString();
 			shipApp.moveTo(selectedHarbour);
 		});
-		// addButton(panel, "Manual", 10, 180, 100, 25, e -> ButtonsEnabled(true,
-		// "Up,Down,Right,Left"));
-
 		addButton(panel, "Up", 140, 180, 80, 25, e -> manualMoving(Direction.NORTH));
 		addButton(panel, "Down", 140, 260, 80, 25, e -> manualMoving(Direction.SOUTH));
 		addButton(panel, "Left", 90, 220, 80, 25, e -> manualMoving(Direction.WEST));
 		addButton(panel, "Right", 190, 220, 80, 25, e -> manualMoving(Direction.EAST));
-
 		addButton(panel, "Load Cargo", 10, 180, 100, 25, e -> {
 			shipApp.loadCargo();
 			try {
@@ -161,11 +151,76 @@ public class ShipAppGUI extends ShipApp {
 			shipApp.unloadCargo();
 			updateStatusLabel();
 		});
-		// addButton(panel, "Radar", 10, 260, 100, 25, e -> RadarRequest());
 
 		frame.add(panel);
 		frame.repaint();
 		frame.setVisible(true);
+	}
+
+	private void checkLevel() {
+		RadarRequest();
+		String command = SeaTradeReceiver.radarCommand;
+		if (command.contains("error")) {
+			try {
+				startSettings();
+				Thread.sleep(1000);
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+			if (command.contains("level")) {
+				AllEnabled(true);
+				ButtonsEnabled(false, "Up,Down,Left,Right");
+			}
+			SeaTradeReceiver.radarCommand = "";
+		} else {
+			showConnectionInformations(); // Begrüßung beim Start ohne Fehler
+		}
+
+	}
+
+	private void showConnectionInformations() {
+
+		String head = null, text = null;
+
+		if (harbours.length > 1 && seaTradeReceiver.isAlive()) {
+			head = "Erfolgreicher Launch";
+			text = "Viel Spaß auf dem SeaTrade-Server und gute Fahrt!";
+			JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
+		}
+
+		else if (harbours.length >= 1 && !seaTradeReceiver.isAlive()) {
+			head = "Verbindungsfehler";
+			text = "Soll eine erneute Verbindung zum SeaTrade-Server aufgebaut werden?";
+
+			int result = JOptionPane.showConfirmDialog(null, text, head, JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.YES_OPTION) {
+				harbours = new String[] { "N/A" };
+				loadHarbours();
+				startSettings();
+				if (harbours.length > 1) {
+					head = "Verbindung erfolgreich";
+					text = "Mit dem Launch-Befehl startet Ihr Schiff!";
+					JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					showConnectionInformations();
+				}
+			}
+		}
+	}
+
+	private void startServer() {
+		if (!seaTradeReceiver.isAlive()) {
+			shipApp.setSeaTradeReceiver(new SeaTradeReceiver(this));
+			seaTradeReceiver = shipApp.getSeaTradeReceiver();
+
+			try {
+				seaTradeReceiver.start();
+				Thread.sleep(1000);
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+		}
+
 	}
 
 // Helfermethoden
@@ -200,17 +255,22 @@ public class ShipAppGUI extends ShipApp {
 	}
 
 	public void manualMoving(Direction direction) {
-		this.direction = direction;
-		shipApp.moveManualTo(direction);
+
 		try {
+			this.direction = direction;
+
+			shipApp.moveManualTo(direction);
 			Thread.sleep(200);
+			RadarRequest();
+			ButtonsEnabled(getCenterGround() == Ground.HAFEN, "Load Cargo,Move");// Load nur im Hafen möglich, sowie
+																					// Auto-Mov
+
+			if (shipApp.getSeaTradeReceiver().isAlive() == false) {
+				AllEnabled(false);
+				harbourDropdown.setEnabled(false);
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
-		RadarRequest();
-		if (shipApp.getSeaTradeReceiver().isAlive() == false) {
-			AllEnabled(false);
-			harbourDropdown.setEnabled(false);
 		}
 	}
 
@@ -281,7 +341,6 @@ public class ShipAppGUI extends ShipApp {
 			arrowLabel.setBackground(Color.PINK);
 			arrowLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		}
-
 		return gridPanel;
 	}
 
@@ -323,6 +382,7 @@ public class ShipAppGUI extends ShipApp {
 		shipNameField.setEditable(result);
 		companyNameField.setEditable(result);
 		destinationDropdown.setEnabled(result);
+		harbourDropdown.setEnabled(result);
 	}
 
 	public void ButtonsEnabled(boolean result, String button) {
