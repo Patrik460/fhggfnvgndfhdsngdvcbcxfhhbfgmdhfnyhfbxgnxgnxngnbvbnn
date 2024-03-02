@@ -13,12 +13,12 @@
     <h2>Your statistics!</h2>
   </div>
   <div>
-    <img src="img/kompass.png" alt="Logo" style="height: 140px; margin-left: 10px;">
+    <img src="img/kompass.png" alt="Logo" style="height: 100px; margin-left: 10px;">
   </div>
 </header>
 
 <main>
-  <canvas id="balanceChart" width="400" height="200"></canvas>
+  <div id="radarAnimation" class="radar-animation"></div>
 
   <section id="stats">
     <div id="cargo" class="info-box">Cargo</div>
@@ -27,8 +27,11 @@
     <div id="ship" class="info-box">Ship</div>
     <div id="map" class="info-box">Map</div>
   </section>
-
+  <div id="chartContainer" class="chart-container">
+    <canvas id="dynamicChart"></canvas>
+  </div>
 </main>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
