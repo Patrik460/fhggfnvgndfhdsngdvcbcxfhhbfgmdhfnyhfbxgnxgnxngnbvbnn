@@ -8,12 +8,12 @@ package sea.Basis;
 //EnumObj EnumName.valueOf(String name) - wandelt einen String in Enum-Wert um
 
 public enum RadarPos {
-	W, // West
-	NW, // Nordwest
-	N, // Nord
-	NE, // Nordost
-	E, // Ost
-	SE, // Suedost
-	S, // Sued
-	SW // Suedwest
+  W, // West
+  NW, // Nordwest
+  N, // Nord
+  NE, // Nordost
+  E, // Ost
+  SE, // Suedost
+  S, // Sued
+  SW // Suedwest
 }

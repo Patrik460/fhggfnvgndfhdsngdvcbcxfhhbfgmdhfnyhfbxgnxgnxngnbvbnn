@@ -8,5 +8,5 @@ package sea.Basis;
 // EnumObj EnumName.valueOf(String name) - wandelt einen String in Enum-Wert um
 
 public enum Ground {
-	WASSER, LAND, FELS, HAFEN, EIS, NICHTS
+  WASSER, LAND, FELS, HAFEN, EIS, NICHTS
 }

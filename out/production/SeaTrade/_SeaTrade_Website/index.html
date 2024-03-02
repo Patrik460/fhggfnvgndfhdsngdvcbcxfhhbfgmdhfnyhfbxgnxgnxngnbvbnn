@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeaTradeStats</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div>
+            <h1>SeaTradeStats</h1>
+            <h2>Your statistics!</h2>
+        </div>
+        <div>
+            <img src="img/rad.png" alt="Logo" style="height: 140px; margin-left: 10px;">
+        </div>
+		<div>
+            <img src="img/kompass.png" alt="Logo" style="height: 140px; margin-left: 10px;">
+        </div>
+    </header>
+
+    <main>
+        <canvas id="balanceChart" width="400" height="200"></canvas>
+        
+        <section id="stats">
+            <div id="cargo"></div>
+            <div id="company"></div>
+            <div id="harbour"></div>
+            <div id="ship"></div>
+            <div id="map"></div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

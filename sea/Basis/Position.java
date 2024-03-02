@@ -48,16 +48,17 @@ public class Position implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if ((obj == null) || (getClass() != obj.getClass()))
+		}
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
+		}
 		Position other = (Position) obj;
-		if (x != other.x)
+		if (x != other.x) {
 			return false;
-		if (y != other.y)
-			return false;
-		return true;
+		}
+		return y == other.y;
 	}
 
 	public Direction getDir() {
@@ -95,13 +96,12 @@ public class Position implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("POSITION|");
-		sb.append(x);
-		sb.append("|");
-		sb.append(y);
-		sb.append("|");
-		sb.append(dir.name());
-		return sb.toString();
+		String sb = "POSITION|"
+				+ x
+				+ "|"
+				+ y
+				+ "|"
+				+ dir.name();
+		return sb;
 	}
 }

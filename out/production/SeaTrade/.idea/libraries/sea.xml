@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sea">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Kopie-22.02.zip!/" />
+      <root url="jar://$PROJECT_DIR$/seatrade.jar!/" />
+      <root url="jar://$PROJECT_DIR$/seatrade1.8.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

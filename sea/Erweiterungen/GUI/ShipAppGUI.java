@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -16,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-
 import sea.Basis.Direction;
 import sea.Basis.Ground;
 import sea.Basis.RadarField;
@@ -27,8 +25,9 @@ import sea.ShipApp.SeaTradeReceiver;
 import sea.ShipApp.ShipApp;
 
 public class ShipAppGUI extends ShipApp {
+
 	private JFrame frame;
-	private ShipApp shipApp;
+	private final ShipApp shipApp;
 	private SeaTradeReceiver seaTradeReceiver;
 	private JPanel panel, gridPanel;
 	private Direction direction = Direction.WEST;
@@ -50,7 +49,7 @@ public class ShipAppGUI extends ShipApp {
 		harbours = company.loadHarbours();
 
 		if (harbours.length < 1) {
-			harbours = new String[] { "N/A" };
+			harbours = new String[]{"N/A"};
 		}
 	}
 
@@ -121,7 +120,7 @@ public class ShipAppGUI extends ShipApp {
 						RadarRequest();
 
 					} else {
-						harbours = new String[] { "N/A" };
+						harbours = new String[]{"N/A"};
 						startSettings();
 						showConnectionInformations();
 					}
@@ -186,15 +185,14 @@ public class ShipAppGUI extends ShipApp {
 			head = "Erfolgreicher Launch";
 			text = "Viel Spaß auf dem SeaTrade-Server und gute Fahrt!";
 			JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
-		}
-
-		else if (harbours.length >= 1 && !seaTradeReceiver.isAlive()) {
+		} else if (harbours.length >= 1 && !seaTradeReceiver.isAlive()) {
 			head = "Verbindungsfehler";
 			text = "Soll eine erneute Verbindung zum SeaTrade-Server aufgebaut werden?";
 
-			int result = JOptionPane.showConfirmDialog(null, text, head, JOptionPane.YES_NO_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, text, head,
+					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.YES_OPTION) {
-				harbours = new String[] { "N/A" };
+				harbours = new String[]{"N/A"};
 				loadHarbours();
 				startSettings();
 				if (harbours.length > 1) {
@@ -223,7 +221,7 @@ public class ShipAppGUI extends ShipApp {
 
 	}
 
-// Helfermethoden
+	// Helfermethoden
 	private JLabel addLabel(JPanel panel, String text, int x, int y, int width, int height) {
 		JLabel label = new JLabel(text);
 		label.setBounds(x, y, width, height);
@@ -238,7 +236,8 @@ public class ShipAppGUI extends ShipApp {
 		return textField;
 	}
 
-	private JComboBox<String> addComboBox(JPanel panel, String[] options, int x, int y, int width, int height) {
+	private JComboBox<String> addComboBox(JPanel panel, String[] options, int x, int y, int width,
+			int height) {
 		JComboBox<String> comboBox = new JComboBox<>(options);
 		comboBox.setBounds(x, y, width, height);
 		panel.add(comboBox);
@@ -262,10 +261,11 @@ public class ShipAppGUI extends ShipApp {
 			shipApp.moveManualTo(direction);
 			Thread.sleep(200);
 			RadarRequest();
-			ButtonsEnabled(getCenterGround() == Ground.HAFEN, "Load Cargo,Move");// Load nur im Hafen möglich, sowie
-																					// Auto-Mov
+			ButtonsEnabled(getCenterGround() == Ground.HAFEN,
+					"Load Cargo,Move");// Load nur im Hafen möglich, sowie
+			// Auto-Mov
 
-			if (shipApp.getSeaTradeReceiver().isAlive() == false) {
+			if (!shipApp.getSeaTradeReceiver().isAlive()) {
 				AllEnabled(false);
 				harbourDropdown.setEnabled(false);
 			}
@@ -274,9 +274,6 @@ public class ShipAppGUI extends ShipApp {
 		}
 	}
 
-	/**
-	 * @param panel
-	 */
 	private void RadarRequest() {
 		gridPanel = createGridPanel();
 		gridPanel.setBounds(10, 320, 200, 130);
@@ -301,15 +298,15 @@ public class ShipAppGUI extends ShipApp {
 		shipApp.getRadarRequest();
 
 		String arrow = switch (direction) {
-		case NORTH -> "↑";
-		case WEST -> "←";
-		case SOUTH -> "↓";
-		case EAST -> "→";
-		default -> "";
+			case NORTH -> "↑";
+			case WEST -> "←";
+			case SOUTH -> "↓";
+			case EAST -> "→";
+			default -> "";
 		};
 
-		String[] guiDirections = { "NW", "N", "NE", "W", arrow, "E", "SW", "S", "SE" };
-		String[] serverDirections = { "W", "NW", "N", "NE", "E", "SE", "S", "SW" };
+		String[] guiDirections = {"NW", "N", "NE", "W", arrow, "E", "SW", "S", "SE"};
+		String[] serverDirections = {"W", "NW", "N", "NE", "E", "SE", "S", "SW"};
 
 		JPanel gridPanel = new JPanel(new GridLayout(3, 3));
 
@@ -328,7 +325,8 @@ public class ShipAppGUI extends ShipApp {
 				Ground ground = radarFields[i].getGround();
 				boolean isHasShip = radarFields[i].isHasShip();
 
-				JLabel label = (JLabel) gridPanel.getComponent(Arrays.asList(guiDirections).indexOf(direction));
+				JLabel label = (JLabel) gridPanel.getComponent(
+						Arrays.asList(guiDirections).indexOf(direction));
 				label.setForeground(Color.WHITE);
 				if (isHasShip) {
 					label.setBackground(Color.CYAN);
@@ -337,7 +335,8 @@ public class ShipAppGUI extends ShipApp {
 				}
 			}
 // Pfeil hervorsetzen
-			JLabel arrowLabel = (JLabel) gridPanel.getComponent(Arrays.asList(guiDirections).indexOf(arrow));
+			JLabel arrowLabel = (JLabel) gridPanel.getComponent(
+					Arrays.asList(guiDirections).indexOf(arrow));
 			arrowLabel.setBackground(Color.PINK);
 			arrowLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		}
@@ -346,27 +345,28 @@ public class ShipAppGUI extends ShipApp {
 
 	private Color getColorForGround(Ground ground) {
 		switch (ground) {
-		case WASSER:
-			return Color.BLUE;
-		case LAND:
-			return Color.GREEN;
-		case FELS:
-			return Color.GRAY;
-		case HAFEN:
-			return Color.RED;
-		case EIS:
-			return Color.WHITE;
-		case NICHTS:
-			return Color.BLACK;
-		default:
-			return Color.ORANGE;
+			case WASSER:
+				return Color.BLUE;
+			case LAND:
+				return Color.GREEN;
+			case FELS:
+				return Color.GRAY;
+			case HAFEN:
+				return Color.RED;
+			case EIS:
+				return Color.WHITE;
+			case NICHTS:
+				return Color.BLACK;
+			default:
+				return Color.ORANGE;
 		}
 	}
 
 	private void updateStatusLabel() {
 		if (shipApp.isLoaded()) {
 			Cargo loadedCargo = seaTradeReceiver.getLoadedCargo();
-			statusLabel.setText(loadedCargo.getValue() + " is waiting \nin " + loadedCargo.getDestination());
+			statusLabel.setText(
+					loadedCargo.getValue() + " is waiting \nin " + loadedCargo.getDestination());
 		} else {
 			statusLabel.setText("No Cargo, \nwork harder!");
 		}
@@ -376,7 +376,7 @@ public class ShipAppGUI extends ShipApp {
 		Component[] components = panel.getComponents();
 		for (Component component : components) {
 			if (component instanceof JButton) {
-				((JButton) component).setEnabled(result);
+				component.setEnabled(result);
 			}
 		}
 		shipNameField.setEditable(result);
@@ -386,14 +386,13 @@ public class ShipAppGUI extends ShipApp {
 	}
 
 	public void ButtonsEnabled(boolean result, String button) {
-		String[] buttons = new String[] { button }; // Standardwert
+		String[] buttons = new String[]{button}; // Standardwert
 		if (button.contains(",")) {
 			buttons = button.split(",");
 		}
 		Component[] components = panel.getComponents();
 		for (Component component : components) {
-			if (component instanceof JButton) {
-				JButton currentButton = (JButton) component;
+			if (component instanceof JButton currentButton) {
 				for (String btn : buttons) {
 					if (currentButton.getText().equals(btn.trim())) {
 						currentButton.setEnabled(result);

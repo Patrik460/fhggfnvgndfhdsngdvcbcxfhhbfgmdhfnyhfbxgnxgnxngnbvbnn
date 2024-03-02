@@ -20,9 +20,9 @@ public class Size implements Serializable {
 		return null;
 	}
 
-	private int width;
+	private final int width;
 
-	private int height;
+	private final int height;
 
 	public Size() {
 		this(0, 0);
@@ -43,12 +43,11 @@ public class Size implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SIZE|");
-		sb.append(width);
-		sb.append("|");
-		sb.append(height);
-		return sb.toString();
+		String sb = "SIZE|"
+				+ width
+				+ "|"
+				+ height;
+		return sb;
 	}
 
 }

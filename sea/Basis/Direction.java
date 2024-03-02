@@ -8,5 +8,5 @@ package sea.Basis;
 //EnumObj EnumName.valueOf(String name) - wandelt einen String in Enum-Wert um
 
 public enum Direction {
-	NORTH, EAST, SOUTH, WEST, NONE
+  NORTH, EAST, SOUTH, WEST, NONE
 }

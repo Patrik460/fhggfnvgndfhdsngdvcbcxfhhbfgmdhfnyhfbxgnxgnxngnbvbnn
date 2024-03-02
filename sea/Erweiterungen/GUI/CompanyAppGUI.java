@@ -2,7 +2,6 @@ package sea.Erweiterungen.GUI;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -10,13 +9,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-
 import sea.CompanyApp.CompanyApp;
 import sea.CompanyApp.Receiver;
 
 public class CompanyAppGUI {
+
 	private JFrame frame;
-	private CompanyApp companyApp;
+	private final CompanyApp companyApp;
 	private Receiver receiver;
 	private JPanel panel;
 	private JTextField companyNameField;
@@ -69,7 +68,7 @@ public class CompanyAppGUI {
 		addButton(panel, "Harbours", 80, 100, 160, 25, e -> showHarbourInfo());
 		addButton(panel, "Cargos", 250, 100, 160, 25, e -> showCargoInfo());
 
-		String[] shipOptions = { "Ship1", "Ship2", "Ship3" };
+		String[] shipOptions = {"Ship1", "Ship2", "Ship3"};
 		shipDropdown = addComboBox(panel, shipOptions, 80, 180, 160, 25);
 
 		// Button für Order und Label für Cargo
@@ -95,7 +94,8 @@ public class CompanyAppGUI {
 		return textField;
 	}
 
-	private JComboBox<String> addComboBox(JPanel panel, String[] options, int x, int y, int width, int height) {
+	private JComboBox<String> addComboBox(JPanel panel, String[] options, int x, int y, int width,
+			int height) {
 		JComboBox<String> comboBox = new JComboBox<>(options);
 		comboBox.setBounds(x, y, width, height);
 		panel.add(comboBox);
@@ -115,20 +115,19 @@ public class CompanyAppGUI {
 		Component[] components = panel.getComponents();
 		for (Component component : components) {
 			if (component instanceof JButton) {
-				((JButton) component).setEnabled(result);
+				component.setEnabled(result);
 			}
 		}
 	}
 
 	public void ButtonsEnabled(boolean result, String button) {
-		String[] buttons = new String[] { button }; // Standardwert
+		String[] buttons = new String[]{button}; // Standardwert
 		if (button.contains(",")) {
 			buttons = button.split(",");
 		}
 		Component[] components = panel.getComponents();
 		for (Component component : components) {
-			if (component instanceof JButton) {
-				JButton currentButton = (JButton) component;
+			if (component instanceof JButton currentButton) {
 				for (String btn : buttons) {
 					if (currentButton.getText().equals(btn.trim())) {
 						currentButton.setEnabled(result);
