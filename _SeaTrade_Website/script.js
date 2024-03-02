@@ -1,57 +1,49 @@
-// Container für die Statistiken
-const statistikContainer = document.getElementById('stats');
+document.addEventListener('DOMContentLoaded', function() {
+    const infoBoxes = document.querySelectorAll('.info-box');
+    const chartContainer = document.querySelector('.chart-container');
+    const ctx = document.getElementById('dynamicChart').getContext('2d');
+    let myChart;
 
-// Funktion zum Anzeigen der Daten als Balkendiagramme
-function anzeigenBalkendiagramme(datensaetze) {
-    for (const tabelle in datensaetze) {
-        const daten = datensaetze[tabelle];
-        anzeigenBalkendiagramm(daten, tabelle);
-    }
-}
-
-// Funktion zum Erstellen eines Balkendiagramms
-function anzeigenBalkendiagramm(daten, name) {
-    const statistik = document.createElement('div');
-    statistik.className = 'stat';
-    statistik.innerHTML = `
-        <h2>${name}</h2>
-        <canvas id="${name}-chart"></canvas>
-    `;
-    statistikContainer.appendChild(statistik);
-
-    const canvas = document.getElementById(`${name}-chart`);
-
-    new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(daten),
-            datasets: [{
-                label: name,
-                data: Object.values(daten),
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+    const chartsData = {
+        cargo: {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai'],
+                datasets: [{
+                    label: 'Cargo',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: 'rgba(35, 33, 32, 0.8)',
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                weight: 'bold' // Macht die Beschriftung der X-Achse fett
+                            }
+                        }
+                    }
                 }
             }
-        }
-    });
-}
+        },
+        // Weitere Datenobjekte für 'company', 'harbour', 'ship', 'map' können hier folgen
+    };
 
-// JSON-Daten abrufen und anzeigen
-fetch('getData.php')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+    function handleBoxClick(data) {
+        if (myChart) {
+            myChart.destroy();
         }
-        return response.json();
-    })
-    .then(data => {
-        anzeigenBalkendiagramme(data);
-    })
-    .catch(error => console.error('Error fetching or parsing data:', error));
+        chartContainer.style.display = 'block';
+        myChart = new Chart(ctx, chartsData[data]);
+    }
+
+    infoBoxes.forEach(box => {
+        box.addEventListener('click', function() {
+            handleBoxClick(this.id);
+        });
+    });
+});
