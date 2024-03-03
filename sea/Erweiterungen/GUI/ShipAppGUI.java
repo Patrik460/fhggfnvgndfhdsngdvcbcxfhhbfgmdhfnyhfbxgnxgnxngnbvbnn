@@ -103,10 +103,7 @@ public class ShipAppGUI extends ShipApp {
       startServer();
       if (seaTradeReceiver.isAlive()) {
         shipApp.launch(companyName, selectedHarbour, shipName);
-
-        allEnabled(true);
-        buttonsEnabled(false, "Launch");
-        harbourDropdown.setEnabled(false);
+        launchSettings();
         checkLevel();
         radarRequest();
 
@@ -116,7 +113,6 @@ public class ShipAppGUI extends ShipApp {
       }
     }
   }
-
 
   private void moveShipAction() {
     String selectedHarbour = destinationDropdown.getSelectedItem().toString().toLowerCase();
@@ -175,6 +171,16 @@ public class ShipAppGUI extends ShipApp {
     shipNameField.setEditable(true);
     companyNameField.setEditable(true);
     harbourDropdown.setEnabled(true);
+    panel.repaint();
+    panel.revalidate();
+  }
+
+  private void launchSettings() {
+    allEnabled(true);
+    buttonsEnabled(false, "Launch");
+    harbourDropdown.setEnabled(false);
+    shipNameField.setEditable(false);
+    companyNameField.setEditable(false);
     panel.repaint();
     panel.revalidate();
   }
