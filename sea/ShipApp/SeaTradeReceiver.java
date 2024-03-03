@@ -77,15 +77,15 @@ public class SeaTradeReceiver extends Thread {
 
 // Fehlermeldung
         if (line.contains("error")) {
-          Object errorMessage = null;
-          if (line.contains("money")) {
-            errorMessage = "Error: Company hasn't enough moneyd.";
-          }
+          Object errorMessage = line;
           if (line.contains("company")) {
             errorMessage = "Error: The Company is not registered.";
           }
-          if (errorMessage == null) {
-            errorMessage = line;
+          if (line.contains("money")) {
+            errorMessage = "Error: Company hasn't enough money.";
+          }
+          if (line.contains("loadcargo") && line.contains("available")) {
+            errorMessage = "Error: No Cargo available here.";
           }
           helpCommand = errorMessage.toString().toLowerCase();
           if (!line.contains("LEVEL")) {

@@ -5,13 +5,16 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -30,7 +33,7 @@ public class ShipAppGUI extends ShipApp {
   private SeaTradeReceiver seaTradeReceiver;
   private JPanel panel;
   private Direction direction = Direction.WEST;
-  private JLabel statusLabel;
+  private JTextArea statusLabel;
   private JTextField shipNameField, companyNameField;
   private JComboBox<String> harbourDropdown, destinationDropdown;
   private final String[] harbours;
@@ -75,7 +78,7 @@ public class ShipAppGUI extends ShipApp {
 
     // Radar und Status
     addLabel(panel, "Radar:", 10, 300, 80, 25);
-    statusLabel = addLabel(panel, "Status", 220, 300, 140, 65);
+    statusLabel = addTextArea(panel, "", 220, 320, 400, 130);
 
     // Aktionen
     addButton(panel, "Launch", 280, 20, 80, 105, e -> launchShipAction());
@@ -120,18 +123,24 @@ public class ShipAppGUI extends ShipApp {
   }
 
   private void loadCargoAction() {
-    shipApp.loadCargo();
     try {
+      shipApp.loadCargo();
+
       Thread.sleep(500);
+      updateStatusLabel();
     } catch (InterruptedException ex) {
       ex.printStackTrace();
     }
-    updateStatusLabel();
   }
 
   private void unloadCargoAction() {
-    shipApp.unloadCargo();
-    updateStatusLabel();
+    try {
+      shipApp.unloadCargo();
+      Thread.sleep(500);
+      updateStatusLabel();
+    } catch (InterruptedException ex) {
+      ex.printStackTrace();
+    }
   }
 
   private JLabel addLabel(JPanel panel, String text, int x, int y, int width, int height) {
@@ -164,6 +173,20 @@ public class ShipAppGUI extends ShipApp {
     panel.add(button);
     return button;
   }
+
+  private JTextArea addTextArea(JPanel panel, String text, int x, int y, int width, int height) {
+    JTextArea textArea = new JTextArea();
+    textArea.setText(text);
+    textArea.setEditable(false);
+    textArea.setOpaque(false);
+    textArea.setBorder(null);
+    textArea.setWrapStyleWord(true);
+    textArea.setLineWrap(true);
+    textArea.setBounds(x, y, width, height);
+    panel.add(textArea);
+    return textArea;
+  }
+
 
   public void startSettings() {
     allEnabled(false);
@@ -217,14 +240,26 @@ public class ShipAppGUI extends ShipApp {
   }
 
   private void updateStatusLabel() {
+    StringBuilder text = new StringBuilder();
+    Cargo loadedCargo = seaTradeReceiver.getLoadedCargo();
+
     if (shipApp.isLoaded()) {
-      Cargo loadedCargo = seaTradeReceiver.getLoadedCargo();
-      statusLabel.setText(
-          loadedCargo.getValue() + " is waiting \r\nin " + loadedCargo.getDestination());
-    } else {
-      statusLabel.setText("No Cargo, \r\nwork harder!");
+      if (loadedCargo != null) {
+        text.append("CARGO INFORMATION")
+            .append("\nID: " + loadedCargo.getId())
+            .append("\nValue: " + NumberFormat.getCurrencyInstance(Locale.US)
+                .format(loadedCargo.getValue()))
+            .append("\nFrom: " + loadedCargo.getSource())
+            .append("\nTo: " + loadedCargo.getDestination());
+      } else {
+        text.append("No Cargo,\nwork harder!");
+      }
     }
+    statusLabel.setText(text.toString());
+    panel.repaint();
+    panel.revalidate();
   }
+
 
   private String readSeaTradeCommand() {
     String value = SeaTradeReceiver.helpCommand;
@@ -339,6 +374,9 @@ public class ShipAppGUI extends ShipApp {
       if (!shipApp.getSeaTradeReceiver().isAlive()) {
         allEnabled(false);
         harbourDropdown.setEnabled(false);
+        String head = "Sunken!";
+        String text = "Das Spiel ist vorbei!";
+        JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
       }
     } catch (InterruptedException e) {
       e.printStackTrace();
