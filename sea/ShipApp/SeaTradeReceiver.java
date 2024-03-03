@@ -15,7 +15,7 @@ public class SeaTradeReceiver extends Thread {
   private Socket shipSocket = null;
   private BufferedReader in = null;
   public PrintWriter out = null;
-  public static String radarCommand = "";
+  public static String helpCommand = "";
   private ShipApp shipApp;
   private Cargo loadedCargo = null;
 
@@ -70,7 +70,7 @@ public class SeaTradeReceiver extends Thread {
 
 // Radarnachrichten herausfiltern
         if (infoLine.equals("radarscreen")) {
-          radarCommand = valueLine;
+          helpCommand = valueLine;
         } else {
           System.out.println(line);
         }
@@ -87,9 +87,10 @@ public class SeaTradeReceiver extends Thread {
           if (errorMessage == null) {
             errorMessage = line;
           }
-          radarCommand = errorMessage.toString().toLowerCase();
-          JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-
+          helpCommand = errorMessage.toString().toLowerCase();
+          if (!line.contains("LEVEL")) {
+            JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+          }
         }
       }
     } catch (UnknownHostException e) {

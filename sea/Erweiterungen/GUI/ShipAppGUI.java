@@ -33,7 +33,8 @@ public class ShipAppGUI extends ShipApp {
   private JLabel statusLabel;
   private JTextField shipNameField, companyNameField;
   private JComboBox<String> harbourDropdown, destinationDropdown;
-  private String[] harbours;
+  private final String[] harbours;
+  private int level = 1;
 
   public ShipAppGUI() {
     this.shipApp = new ShipApp();
@@ -97,26 +98,25 @@ public class ShipAppGUI extends ShipApp {
     String shipName = shipNameField.getText().trim();
     String companyName = companyNameField.getText().trim();
     String selectedHarbour = harbourDropdown.getSelectedItem().toString().toLowerCase();
-    if (harbours.length > 1) {
-      if (!shipName.isEmpty() && !companyName.isEmpty()) {
-        startServer();
-        if (seaTradeReceiver.isAlive()) {
-          shipApp.launch(companyName, selectedHarbour, shipName);
 
-          allEnabled(true);
-          buttonsEnabled(false, "Launch");
-          checkLevel();
-          radarRequest();
+    if (!shipName.isEmpty() && !companyName.isEmpty()) {
+      startServer();
+      if (seaTradeReceiver.isAlive()) {
+        shipApp.launch(companyName, selectedHarbour, shipName);
 
-        } else {
-          startSettings();
-          showConnectionInformations();
-        }
+        allEnabled(true);
+        buttonsEnabled(false, "Launch");
+        harbourDropdown.setEnabled(false);
+        checkLevel();
+        radarRequest();
+
+      } else {
+        startSettings();
+        showConnectionInformations();
       }
-    } else {
-      showConnectionInformations();
     }
   }
+
 
   private void moveShipAction() {
     String selectedHarbour = destinationDropdown.getSelectedItem().toString().toLowerCase();
@@ -214,10 +214,16 @@ public class ShipAppGUI extends ShipApp {
     if (shipApp.isLoaded()) {
       Cargo loadedCargo = seaTradeReceiver.getLoadedCargo();
       statusLabel.setText(
-          loadedCargo.getValue() + " is waiting \nin " + loadedCargo.getDestination());
+          loadedCargo.getValue() + " is waiting \r\nin " + loadedCargo.getDestination());
     } else {
-      statusLabel.setText("No Cargo, \nwork harder!");
+      statusLabel.setText("No Cargo, \r\nwork harder!");
     }
+  }
+
+  private String readSeaTradeCommand() {
+    String value = SeaTradeReceiver.helpCommand;
+    SeaTradeReceiver.helpCommand = "";
+    return value;
   }
 
   private void startServer() {
@@ -230,8 +236,6 @@ public class ShipAppGUI extends ShipApp {
     } catch (InterruptedException ex) {
       ex.printStackTrace();
     }
-
-
   }
 
   private void radarRequest() {
@@ -256,7 +260,7 @@ public class ShipAppGUI extends ShipApp {
 
   private void checkLevel() {
     radarRequest();
-    String command = SeaTradeReceiver.radarCommand;
+    String command = readSeaTradeCommand();
     if (command.contains("error")) {
       try {
         startSettings();
@@ -267,38 +271,54 @@ public class ShipAppGUI extends ShipApp {
       if (command.contains("level")) {
         allEnabled(true);
         buttonsEnabled(false, "Up,Down,Left,Right");
+        level = 0;
+        showConnectionInformations();
       }
-      SeaTradeReceiver.radarCommand = "";
     } else {
       showConnectionInformations(); // Begrüßung beim Start ohne Fehler
     }
-
   }
 
   private void showConnectionInformations() {
 
-    String head, text;
+    String head, text, status = null, listenzeichen = "", levelInformation;
+    if (level == 0) {
+      listenzeichen = "- ";
+      status = "Nachfolgendes wurde deaktiviert:";
+    } else if (level == 1) {
+      listenzeichen = "+ ";
+      status = "Nachfolgendes wurde aktiviert:";
+    }
+    levelInformation = "\r\n" +
+        listenzeichen + "Move Manual\r\n" +
+        listenzeichen + "RadarRequest\r\n" +
+        listenzeichen + "Load with ID\r\n";
+    status = "\r\n\r\n" + status + levelInformation;
 
-    if (harbours.length > 1 && seaTradeReceiver.isAlive()) {
+    if (seaTradeReceiver.isAlive()) {
       head = "Erfolgreicher Launch";
-      text = "Viel Spaß auf dem SeaTrade-Server und gute Fahrt!";
-      JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
-    } else if (harbours.length >= 1 && !seaTradeReceiver.isAlive()) {
+      text = "Viel Spaß auf dem SeaTrade-Server und gute Fahrt!" +
+          "\r\n\r\nIhr Level beträgt: Level " + level;
+      JOptionPane.showMessageDialog(null, text + status, head, JOptionPane.INFORMATION_MESSAGE);
+    } else if (!seaTradeReceiver.isAlive()) {
       head = "Verbindungsfehler";
       text = "Soll eine erneute Verbindung zum SeaTrade-Server aufgebaut werden?";
 
-      int result = JOptionPane.showConfirmDialog(null, text, head,
-          JOptionPane.YES_NO_CANCEL_OPTION);
-      if (result == JOptionPane.YES_OPTION) {
-        startServer();
-        if (harbours.length > 1) {
+      try {
+        Thread.sleep(2000);
+        int result = JOptionPane.showConfirmDialog(null, text, head,
+            JOptionPane.YES_NO_CANCEL_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
           head = "Verbindung erfolgreich";
-          text = "Mit dem Launch-Befehl startet Ihr Schiff!";
+          text = "Der Launch wird erneut probiert.";
+          launchShipAction();
           JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
-        } else {
-          showConnectionInformations();
         }
+
+      } catch (InterruptedException ex) {
+        ex.printStackTrace();
       }
+
     }
   }
 
@@ -336,8 +356,9 @@ public class ShipAppGUI extends ShipApp {
     JPanel gridPanel = new JPanel(new GridLayout(3, 3));
 
 // Falls Radar-Feedback vorhanden ist
-    if (RadarScreen.parse(SeaTradeReceiver.radarCommand) != null) {
-      RadarField[] radarFields = RadarScreen.parse(SeaTradeReceiver.radarCommand).getMeasures();
+    String command = SeaTradeReceiver.helpCommand;
+    if (RadarScreen.parse(command) != null) {
+      RadarField[] radarFields = RadarScreen.parse(command).getMeasures();
 
       for (String direction : guiDirections) {
         JLabel label = new JLabel(direction, SwingConstants.CENTER);
@@ -382,5 +403,4 @@ public class ShipAppGUI extends ShipApp {
   public static void main(String[] args) {
     new ShipAppGUI();
   }
-
 }

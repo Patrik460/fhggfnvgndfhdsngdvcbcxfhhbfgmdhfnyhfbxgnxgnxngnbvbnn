@@ -123,7 +123,7 @@ public class CompanyApp {
     requestListener.interrupt(); // Interrupt the RequestListener thread
 
     for (ShipSession shipSession : shipSessions) {
-			shipSession.Close();
+      shipSession.Close();
     }
 
     shipSessions.clear();
