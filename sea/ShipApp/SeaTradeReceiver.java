@@ -48,12 +48,18 @@ public class SeaTradeReceiver extends Thread {
           infoLine = line.split(":")[0].toLowerCase();
           valueLine = line.split(":")[1];
         }
-        // Autopilot nur vom Hafen aus aktivierbar
+// Autopilot nur vom Hafen aus aktivierbar
         if (infoLine.equals("reached")) {
           shipApp.setCenterGround(Ground.HAFEN);
         } else {
           if (infoLine.equals("moved")) {
             shipApp.setCenterGround(Ground.WASSER);
+            
+            //TODO: dir und pos objekt erstellen
+            //TODO: cost value aus der servernachricht ziehen
+            shipApp.sendDir();
+            shipApp.sendPos(null);
+            shipApp.sendCost();
           }
         }
 // loaded

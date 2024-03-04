@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import sea.CompanyApp.CompanyApp;
 import sea.CompanyApp.Receiver;
@@ -21,7 +22,8 @@ public class CompanyAppGUI {
   private JTextField companyNameField;
   private JLabel updatedBalanceLabel, newBalanceLabel;
   private JComboBox<String> cargoDropdown, shipDropdown;
-
+  private Timer balanceUpdateTimer;
+  
   public CompanyAppGUI() {
     this.companyApp = new CompanyApp();
     companyApp.setReceiver(new Receiver());
@@ -61,7 +63,7 @@ public class CompanyAppGUI {
 
     // Labels und Buttons für Balance, Ship list, Harbours, Cargos
     addLabel(panel, "Balance:", 10, 60, 80, 25);
-    newBalanceLabel = addLabel(panel, "", 80, 60, 160, 25);
+    newBalanceLabel = addLabel(panel, companyApp.getBalance() + "", 80, 60, 160, 25);
     addButton(panel, "Add Ship", 250, 60, 160, 25, e -> {
       new ShipAppGUI();
     });
@@ -77,8 +79,15 @@ public class CompanyAppGUI {
 
     // Exit Button
     addButton(panel, "Exit", 250, 260, 160, 25, e -> exitApplication());
+    
+    balanceUpdateTimer = new Timer(500, e -> updateBalanceLabel());
+    balanceUpdateTimer.start();
   }
 
+  private void updateBalanceLabel() {
+	    newBalanceLabel.setText(companyApp.getBalance() + "");
+	  }
+  
   // Helfermethoden
   private JLabel addLabel(JPanel panel, String text, int x, int y, int width, int height) {
     JLabel label = new JLabel(text);
@@ -188,6 +197,7 @@ public class CompanyAppGUI {
   }
 
   private void exitApplication() {
+	balanceUpdateTimer.stop();
     frame.dispose(); // Schließe das Fenster
     System.exit(0); // Beende die Anwendung
   }

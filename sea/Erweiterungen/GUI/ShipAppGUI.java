@@ -124,6 +124,7 @@ public class ShipAppGUI extends ShipApp {
 
   private void loadCargoAction() {
     try {
+      shipApp.receiveOrder();
       shipApp.loadCargo();
 
       Thread.sleep(500);
@@ -135,6 +136,8 @@ public class ShipAppGUI extends ShipApp {
 
   private void unloadCargoAction() {
     try {
+      shipApp.endOrder();
+      shipApp.sendProfit(getCargo());
       shipApp.unloadCargo();
       Thread.sleep(500);
       updateStatusLabel();

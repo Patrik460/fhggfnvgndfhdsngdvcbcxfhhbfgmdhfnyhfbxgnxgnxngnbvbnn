@@ -78,6 +78,9 @@ public class RequestListener extends Thread {
       case "sendProfit":      //sendProfit:20000
         sendProfit(value);
         break;
+      case "sendCost":
+    	sendCost(value);  
+      	break;
       case "logout":        //logout:AIDA
         //TODO: Login und Logout gehören in ShipSession
         logoutFromCompany(value);
@@ -85,7 +88,7 @@ public class RequestListener extends Thread {
       case "receiveOrder":    //receiveOrder:AIDA		??
         receiveOrder(value);
         break;
-      case "endOrder":      //endOrder:AIDA			??
+      case "endOrder":      //endOrder:19			??
         endOrder(value);
         break;
       case "loadCargo":      //loadCargo:19
@@ -98,7 +101,21 @@ public class RequestListener extends Thread {
         break;
     }
   }
-  //TODO: Login und Logout gehören in ShipSession
+  
+  private void sendCost(String value) {
+	  	String companyName = companyApp.getCompName();
+	    String sql = "UPDATE company SET Balance = Balance - " + value + " WHERE Name = " + companyName;
+	    Connection connection;
+	    try {
+	      connection = connectToDatabase();
+	      updateCompanyBalance(connection, sql);
+	      closeDatabaseConnection(connection);
+	    } catch (SQLException e) {
+	      e.printStackTrace();
+	    }
+	}
+
+//TODO: Login und Logout gehören in ShipSession
 	/*private void login(String shipName) {
 	    out.println(shipName + " has logged in.");
 	    ShipSession shipSession = new ShipSession(companyApp.getCompanyApp(), cSocket);

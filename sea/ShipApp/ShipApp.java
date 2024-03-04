@@ -49,13 +49,6 @@ public class ShipApp {
     }
   }
 
-  /*
-   * public void send2RequestListener(String message) { if (getSeaTradeReceiver()
-   * != null) { getSeaTradeReceiver().out.println(message); try {
-   * Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-   * } }
-   */
-
   public CompanyReceiver getCompanyReceiver() {
     return caReceiver;
   }
@@ -91,26 +84,28 @@ public class ShipApp {
   }
 
   public void receiveOrder() {
-    // eigentlich unnötig
-    send2SeaTradeReceiver("receiveorder", 100);
+    send2SeaTradeReceiver("receiveorder:" + getName(), 100);
   }
 
   public void endOrder() {
-    // überprüfen
-    send2SeaTradeReceiver("endorder", 100);
+    send2SeaTradeReceiver("endorder:" + cargo.getId(), 100);
   }
 
-  public void loadCargo() {
-    setLoaded(true);
-
+  public void loadCargo() {  
     send2SeaTradeReceiver("loadcargo", 100);
+    cargo = seaTradeReceiver.getLoadedCargo();
+    setLoaded(true);
+    
+    if (cargo != null)	
+    	send2CompanyReceiver("loadcargo:" + cargo.getId(), 100);
   }
 
   public void unloadCargo() {
-    // überprüfen
     send2SeaTradeReceiver("unloadcargo", 100);
+    send2CompanyReceiver("unloadcargo:" + cargo.getId(), 100);
+    
+    cargo = null;
     setLoaded(false);
-
   }
 
   public void loseCargo() {
@@ -127,12 +122,10 @@ public class ShipApp {
   }
 
   public void sendPos(Position position) {
-    // überprüfen
     send2SeaTradeReceiver("sendpos:" + position.getX() + ":" + position.getY(), 100);
   }
 
   public void sendDir(Direction direction) {
-    // überprüfen
     send2SeaTradeReceiver("senddir:" + direction.toString(), 100);
   }
 
@@ -142,9 +135,13 @@ public class ShipApp {
   }
 
   public void sendProfit(Cargo cargo) {
-    send2CompanyReceiver("sendprofit:" + cargo.getValue(), 3000);
+    send2CompanyReceiver("sendprofit:" + cargo.getValue(), 100);
   }
 
+  public void sendCost(String cost) {
+	send2CompanyReceiver("sendcost:" + cost, 100);
+  }
+  
   public void getRadarRequest() {
     // überprüfen
     send2SeaTradeReceiver("radarrequest", 100);
