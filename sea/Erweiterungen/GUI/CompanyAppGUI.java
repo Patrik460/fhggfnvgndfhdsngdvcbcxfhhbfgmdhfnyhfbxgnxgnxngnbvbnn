@@ -2,22 +2,17 @@ package sea.Erweiterungen.GUI;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import sea.CompanyApp.CompanyApp;
 import sea.CompanyApp.Receiver;
+import sea.CompanyApp.RequestListener;
 
 public class CompanyAppGUI {
 
@@ -62,12 +57,12 @@ public class CompanyAppGUI {
 	private void placeComponents() {
 		panel.setLayout(null);
 
-// Labels und Textfeld für Name und Register-Button
+		// Labels und Textfeld für Name und Register-Button
 		addLabel(panel, "Name:", 10, 20, 80, 25);
 		companyNameField = addTextField(panel, 80, 20, 160, 25);
 		addButton(panel, "Register", 250, 20, 160, 25, e -> registerCompany());
 
-// Labels und Buttons für Balance, Ship list, Harbours, Cargos
+		// Labels und Buttons für Balance, Ship list, Harbours, Cargos
 		addLabel(panel, "Balance:", 10, 60, 80, 25);
 		newBalanceLabel = addLabel(panel, companyApp.getBalance() + "", 80, 60, 160, 25);
 		addButton(panel, "Add Ship", 250, 60, 160, 25, e -> {
@@ -79,29 +74,22 @@ public class CompanyAppGUI {
 		String[] shipOptions = { "Ship1", "Ship2", "Ship3" };
 		shipDropdown = addComboBox(panel, shipOptions, 80, 180, 160, 25);
 
-// Button für Order und Label für Cargo
+		// Button für Order und Label für Cargo
 		addButton(panel, "Order", 250, 180, 160, 65, e -> orderShip());
 		addLabel(panel, "Cargo:", 10, 140, 80, 25);
-		
-// Exit Button
+
+		// Exit Button
 		addButton(panel, "Exit", 250, 260, 160, 25, e -> exitApplication());
 
-// Clear DB Button
-		addButton(panel, "Clear DB", 80, 260, 160, 25, e -> clearDatabase());
-
-// Timer für die Companybalance
 		balanceUpdateTimer = new Timer(500, e -> updateBalanceLabel());
 		balanceUpdateTimer.start();
 	}
 
 	private void updateBalanceLabel() {
-		newBalanceLabel.setText(companyApp.getBalance() + "");
-	}
-	
-	private void updateBalance(String newBalance) {
-		updatedBalanceLabel.setText(newBalance);
+		newBalanceLabel.setText(receiver.getBalance() + "");
 	}
 
+	// Helfermethoden
 	private JLabel addLabel(JPanel panel, String text, int x, int y, int width, int height) {
 		JLabel label = new JLabel(text);
 		label.setBounds(x, y, width, height);
@@ -167,7 +155,7 @@ public class CompanyAppGUI {
 				try {
 					Thread.sleep(1000);
 					companyApp.getReceiver().out.println("register:" + companyNameField.getText());
-					addCompany(CompanyName.trim());
+					Thread.sleep(1000);
 					AllButtonEnabled(true);
 					ButtonsEnabled(false, "Register");
 				} catch (InterruptedException ex) {
@@ -176,29 +164,17 @@ public class CompanyAppGUI {
 			}
 		}
 	}
-	
-	private void addCompany(String companyName) {
-        Connection connection = null;
-        try {
-            connection = connectToDatabase();
-            String sql = "INSERT INTO company (Name, Balance) VALUES (" + companyName + ", 5000000)";
 
-            try (Statement statement = connection.createStatement()) {
-    	        statement.executeUpdate(sql);
-    	    }       
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error adding company: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            closeDatabaseConnection(connection);
-        }
-    }
+	private void updateBalance(String newBalance) {
+		updatedBalanceLabel.setText(newBalance);
+	}
 
 	private void showHarbourInfo() {
 		companyApp.getHarbourInfo();
 	}
 
 	private void showCargoInfo() {
-// Die Methode getCargoInfo() muss die Cargos aktualisieren
+		// Die Methode getCargoInfo() muss die Cargos aktualisieren
 		companyApp.getCargoInfo();
 
 		String[] aa = receiver.getReceivedCargos();
@@ -215,45 +191,9 @@ public class CompanyAppGUI {
 		updateBalanceLabel();
 		companyApp.distributeOrder();
 	}
-	
-	private Connection connectToDatabase() throws SQLException {
-		String jdbcUrl = "jdbc:mysql://localhost:3305/seatradedb";
-		String username = "root";
-		String password = "";
 
-		return DriverManager.getConnection(jdbcUrl, username, password);
-	}
-	
-	private void closeDatabaseConnection(Connection connection) {
-		try {
-			if (connection != null && !connection.isClosed()) {
-				connection.close();
-			}
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "Error closing database connection: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	private void clearDatabase() {
-	    Connection connection = null;
-	    try {
-	        connection = connectToDatabase();
-	        clearTable(connection, "company");
-	        clearTable(connection, "ship");
-	        clearTable(connection, "cargo");
-
-	    } catch (SQLException e) {
-	    	JOptionPane.showMessageDialog(null, "Error clearing the database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	    } finally {
-	        closeDatabaseConnection(connection);
-	    }
-	}
-	
-	private void clearTable(Connection connection, String tableName) throws SQLException {
-	    String sql = "DELETE FROM " + tableName;
-	    try (Statement statement = connection.createStatement()) {
-	        statement.executeUpdate(sql);
-	    }
+	private void sendCommand() {
+		// TODO
 	}
 
 	private void exitApplication() {
