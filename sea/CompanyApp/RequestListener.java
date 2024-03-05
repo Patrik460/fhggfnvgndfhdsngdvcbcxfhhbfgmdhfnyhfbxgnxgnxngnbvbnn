@@ -78,7 +78,7 @@ public class RequestListener extends Thread {
         sendProfit(value);
         break;
       case "sendCost":
-        companyApp.setBalance(companyApp.getReceiver().getBalance() - 1000);
+        companyApp.addBalance(-1000);
         sendCost(value);
         break;
       case "logout": // logout:AIDA

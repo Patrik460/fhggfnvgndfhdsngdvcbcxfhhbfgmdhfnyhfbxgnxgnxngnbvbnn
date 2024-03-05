@@ -14,8 +14,14 @@ import sea.ShipApp.ShipApp;
 public class Receiver extends Thread {
 
   private Socket companySocket = null;
+  private CompanyApp companyApp;
   private BufferedReader in = null;
   public PrintWriter out = null;
+
+  public void setCompanyApp(CompanyApp companyApp) {
+    this.companyApp = companyApp;
+  }
+
   private int balance = 0;
   private final List<String> allCargos = Collections.synchronizedList(
       new ArrayList<>()); // Threadsichere Liste
@@ -72,7 +78,7 @@ public class Receiver extends Thread {
         if (line.startsWith("registered:")) {
           String money = line.split(":")[2];
           balance = Integer.parseInt(money);
-
+          companyApp.addBalance(balance);
         }
 
       }

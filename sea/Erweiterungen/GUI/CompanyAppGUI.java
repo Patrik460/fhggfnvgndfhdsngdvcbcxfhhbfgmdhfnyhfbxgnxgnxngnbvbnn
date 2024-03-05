@@ -31,9 +31,7 @@ public class CompanyAppGUI {
 
 	public CompanyAppGUI() {
 		this.companyApp = new CompanyApp();
-		companyApp.setReceiver(new Receiver());
-		setReceiver(companyApp.getReceiver());
-
+		setReceiver(new Receiver());
 		initializeGUI();
 	}
 
@@ -167,7 +165,7 @@ public class CompanyAppGUI {
 				try {
 					Thread.sleep(1000);
 					companyApp.getReceiver().out.println("register:" + companyNameField.getText());
-					addCompany(CompanyName.trim());
+					//addCompany(CompanyName.trim());
 					AllButtonEnabled(true);
 					ButtonsEnabled(false, "Register");
 				} catch (InterruptedException ex) {
@@ -271,6 +269,7 @@ public class CompanyAppGUI {
 
 	public void setReceiver(Receiver receiver) {
 		this.receiver = receiver;
+		this.receiver.setCompanyApp(this.companyApp);
 	}
 
 }

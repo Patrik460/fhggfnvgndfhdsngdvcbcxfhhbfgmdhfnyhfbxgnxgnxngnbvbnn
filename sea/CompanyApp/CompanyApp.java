@@ -174,8 +174,8 @@ public class CompanyApp {
     return requestPort;
   }
 
-  public void setBalance(double balance) {
-    this.balance = balance;
+  public void addBalance(double balance) {
+    this.balance = this.balance + balance;
   }
 
   public void setCargos(List<Cargo> cargos) {
