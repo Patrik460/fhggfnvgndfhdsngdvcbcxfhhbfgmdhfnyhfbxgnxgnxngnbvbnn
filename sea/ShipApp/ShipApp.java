@@ -150,7 +150,7 @@ public class ShipApp {
 
   public void getRadarRequest() {
     // überprüfen
-    send2SeaTradeReceiver("radarrequest", 100);
+    send2SeaTradeReceiver("radarrequest", 900);
 
   }
 

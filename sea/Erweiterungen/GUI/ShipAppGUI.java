@@ -1,23 +1,5 @@
 package sea.Erweiterungen.GUI;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionListener;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.Locale;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 import sea.Basis.Direction;
 import sea.Basis.Ground;
 import sea.Basis.RadarField;
@@ -25,6 +7,13 @@ import sea.Basis.RadarScreen;
 import sea.CompanyApp.Cargo;
 import sea.ShipApp.SeaTradeReceiver;
 import sea.ShipApp.ShipApp;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Locale;
 
 public class ShipAppGUI extends ShipApp {
 
@@ -326,41 +315,38 @@ public class ShipAppGUI extends ShipApp {
     String head, text, status = null, listenzeichen = "", levelInformation;
     if (level == 0) {
       listenzeichen = "- ";
-      status = "Nachfolgendes wurde deaktiviert:";
+      status = "Deactivated Features:";
     } else if (level == 1) {
       listenzeichen = "+ ";
-      status = "Nachfolgendes wurde aktiviert:";
+      status = "Deactivated Features:";
     }
     levelInformation =
-        "\r\n" + listenzeichen + "Move Manual\r\n" + listenzeichen + "RadarRequest\r\n"
-            + listenzeichen + "Load with ID\r\n";
+            "\r\n" + listenzeichen + "Move Manual\r\n" + listenzeichen + "RadarRequest\r\n"
+                    + listenzeichen + "Load with ID\r\n";
     status = "\r\n\r\n" + status + levelInformation;
 
     if (seaTradeReceiver.isAlive()) {
-      head = "Erfolgreicher Launch";
+      head = "Launch successfull!";
       text =
-          "Viel Spaß auf dem SeaTrade-Server und gute Fahrt!" + "\r\n\r\nIhr Level beträgt: Level "
-              + level;
+              "Enjoy your ride on the SeaTrade-Server!" + "\r\n\r\nYour Level is: Level " + level;
       JOptionPane.showMessageDialog(null, text + status, head, JOptionPane.INFORMATION_MESSAGE);
     } else if (!seaTradeReceiver.isAlive()) {
-      head = "Verbindungsfehler";
-      text = "Soll eine erneute Verbindung zum SeaTrade-Server aufgebaut werden?";
+      head = "Connection failed.";
+      text = "Try to reconnect?";
 
       try {
         Thread.sleep(2000);
         int result = JOptionPane.showConfirmDialog(null, text, head,
-            JOptionPane.YES_NO_CANCEL_OPTION);
+                JOptionPane.YES_NO_CANCEL_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-          head = "Verbindung erfolgreich";
-          text = "Der Launch wird erneut probiert.";
+          head = "Connection successfull!";
+          text = "Launch in progress.";
           launchShipAction();
           JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
         }
-
       } catch (InterruptedException ex) {
         ex.printStackTrace();
       }
-
     }
   }
 
@@ -368,7 +354,7 @@ public class ShipAppGUI extends ShipApp {
     try {
       this.direction = direction;
       shipApp.moveManualTo(direction);
-      Thread.sleep(200);
+      Thread.sleep(100);
       radarRequest();
       // Load nur im Hafen möglich, sowie Auto-Move
       buttonsEnabled(getCenterGround() == Ground.HAFEN, "Load Cargo,Move");
