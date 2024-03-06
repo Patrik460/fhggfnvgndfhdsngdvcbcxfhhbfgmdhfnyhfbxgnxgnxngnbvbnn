@@ -11,7 +11,7 @@ if ($conn->connect_error) {
 }
 
 // Fetch data from the cargo table
-$sqlCargo = "SELECT CargoID, value FROM cargo";
+$sqlCargo = "SELECT CargoID, Value, HarbourIDStart, HarbourIDDest, Status FROM cargo";
 $resultCargo = $conn->query($sqlCargo);
 
 if ($resultCargo->num_rows > 0) {
@@ -24,7 +24,7 @@ if ($resultCargo->num_rows > 0) {
 }
 
 // Fetch data from the company table
-$sqlCompany = "SELECT name, balance FROM company";
+$sqlCompany = "SELECT CompanyID, Name, Balance FROM company";
 $resultCompany = $conn->query($sqlCompany);
 
 if ($resultCompany->num_rows > 0) {
@@ -37,7 +37,7 @@ if ($resultCompany->num_rows > 0) {
 }
 
 // Fetch data from the harbour table
-$sqlHarbour = "SELECT * FROM harbour";
+$sqlHarbour = "SELECT HarbourID, Name, PosX, PosY FROM harbour";
 $resultHarbour = $conn->query($sqlHarbour);
 
 if ($resultHarbour->num_rows > 0) {
@@ -50,7 +50,7 @@ if ($resultHarbour->num_rows > 0) {
 }
 
 // Fetch data from the ship table
-$sqlShip = "SELECT * FROM ship";
+$sqlShip = "SELECT ShipID, Name, PosX, PosY, CargoID, HarbourID, CompanyID FROM ship";
 $resultShip = $conn->query($sqlShip);
 
 if ($resultShip->num_rows > 0) {

@@ -17,12 +17,12 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import sea.CompanyApp.CompanyApp;
 import sea.CompanyApp.Receiver;
+import sea.ShipApp.SeaTradeReceiver;
 
 public class CompanyAppGUI {
 
 	private JFrame frame;
 	private final CompanyApp companyApp;
-	private Receiver receiver;
 	private JPanel panel;
 	private JTextField companyNameField;
 	private JLabel updatedBalanceLabel, newBalanceLabel;
@@ -31,7 +31,6 @@ public class CompanyAppGUI {
 
 	public CompanyAppGUI() {
 		this.companyApp = new CompanyApp();
-		setReceiver(new Receiver());
 		initializeGUI();
 	}
 
@@ -159,21 +158,28 @@ public class CompanyAppGUI {
 
 	private void registerCompany() {
 		String CompanyName = companyNameField.getText().trim();
-		if (!CompanyName.isEmpty() && companyApp.getReceiver() != null) {
-			if (!companyApp.getReceiver().isAlive()) {
-				companyApp.getReceiver().start();
-				try {
-					Thread.sleep(1000);
-					companyApp.getReceiver().out.println("register:" + companyNameField.getText());
-					//addCompany(CompanyName.trim());
-					AllButtonEnabled(true);
-					ButtonsEnabled(false, "Register");
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
+	    
+		if (!CompanyName.isEmpty()){
+				startServer();
+				companyApp.register(companyNameField.getText());
+				//addCompany(CompanyName.trim());
+				AllButtonEnabled(true);
+				ButtonsEnabled(false, "Register");
 			}
-		}
+		
 	}
+	  private void startServer() {
+		  companyApp.setReceiver(new Receiver());
+
+		    try {
+		      companyApp.getReceiver().start();
+		      companyApp.getReceiver().setCompanyApp(this.companyApp);
+
+		      Thread.sleep(1000);
+		    } catch (InterruptedException ex) {
+		      ex.printStackTrace();
+		    }
+		  }
 
 	private void addCompany(String companyName) {
 		Connection connection = null;
@@ -200,12 +206,12 @@ public class CompanyAppGUI {
 // Die Methode getCargoInfo() muss die Cargos aktualisieren
 		companyApp.getCargoInfo();
 
-		String[] aa = receiver.getReceivedCargos();
+		String[] rc = companyApp.getReceiver().getReceivedCargos();
 
 		if (cargoDropdown != null) {
 			panel.remove(cargoDropdown); // Entferne die vorhandene JComboBox
 		}
-		cargoDropdown = addComboBox(panel, aa, 80, 140, 330, 25); // Erstelle die JComboBox neu
+		cargoDropdown = addComboBox(panel, rc, 80, 140, 330, 25); // Erstelle die JComboBox neu
 		panel.revalidate(); // Aktualisiere das Panel, um die Änderungen anzuzeigen
 		panel.repaint();
 	}
@@ -262,14 +268,4 @@ public class CompanyAppGUI {
 		frame.dispose(); // Schließe das Fenster
 		System.exit(0); // Beende die Anwendung
 	}
-
-	public Receiver getReceiver() {
-		return receiver;
-	}
-
-	public void setReceiver(Receiver receiver) {
-		this.receiver = receiver;
-		this.receiver.setCompanyApp(this.companyApp);
-	}
-
 }

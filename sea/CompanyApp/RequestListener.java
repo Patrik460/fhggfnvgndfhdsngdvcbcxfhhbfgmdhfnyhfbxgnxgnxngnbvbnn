@@ -64,10 +64,7 @@ public class RequestListener extends Thread {
     String command = getCommand(inputLine);
     String value = getValue(inputLine);
 
-    switch (command) {
-      case "login": // login:AIDA
-        // TODO: Login und Logout gehören in ShipSession login(value);
-        break;
+    switch (command) {     
       case "sendPos": // sendPos:12,18
         sendPos(value);
         break;
@@ -78,12 +75,10 @@ public class RequestListener extends Thread {
         sendProfit(value);
         break;
       case "sendCost":
-        companyApp.addBalance(-1000);
-        sendCost(value);
-        break;
-      case "logout": // logout:AIDA
-        // TODO: Login und Logout gehören in ShipSession
-        logoutFromCompany(value);
+    	int money = Integer.parseInt(value);
+    	if(value == "") {money = 1000;}
+        companyApp.addBalance(-money);
+        //sendCost(value);
         break;
       case "receiveOrder": // receiveOrder:AIDA ??
         receiveOrder(value);
@@ -174,11 +169,6 @@ public class RequestListener extends Thread {
   private String getValue(String inputLine) {
     String[] splitCommand = inputLine.split(":");
     return (splitCommand.length > 1) ? splitCommand[1] : "";
-  }
-
-  private void logoutFromCompany(String shipName) {
-    out.println(shipName + " has logged out.");
-    companyApp.addShipSession(null);
   }
 
   private void receiveOrder(String shipName) {

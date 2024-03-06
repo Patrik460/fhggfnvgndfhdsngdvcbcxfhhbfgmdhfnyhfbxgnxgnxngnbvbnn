@@ -1,6 +1,7 @@
 package sea.Basis;
 
 import java.io.Serializable;
+import sea.Basis.*;
 
 public class RadarScreen implements Serializable {
 

@@ -19,8 +19,9 @@ public class ShipApp {
   private CompanyReceiver caReceiver;
 
   public ShipApp() {
-    setCompanyReceiver(new CompanyReceiver());
+	  caReceiver = new CompanyReceiver();
     caReceiver.start();
+
     setSeaTradeReceiver(new SeaTradeReceiver(this));
   }
 
@@ -29,8 +30,8 @@ public class ShipApp {
   }
 
   public void send2CompanyReceiver(String message, int threadTimer) {
-    if (getCompanyReceiver().out != null) {
-      getCompanyReceiver().out.println(message);
+    if (caReceiver.out != null) {
+    	caReceiver.out.println(message);
       try {
         Thread.sleep(threadTimer);
       } catch (InterruptedException e) {
@@ -140,8 +141,11 @@ public class ShipApp {
     send2CompanyReceiver("sendprofit:" + cargo.getValue(), 100);
   }
 
-  public void sendCost(String cost) {
-    send2CompanyReceiver("sendcost:" + cost, 100);
+  public void sendCost(int cost) {
+    System.out.println("kost: "+cost);
+    
+	  send2CompanyReceiver("sendCost:" + cost, 1000);
+    
   }
 
   public void getRadarRequest() {

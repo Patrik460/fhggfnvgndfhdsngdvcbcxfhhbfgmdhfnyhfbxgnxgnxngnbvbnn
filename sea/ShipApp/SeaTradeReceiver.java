@@ -58,10 +58,20 @@ public class SeaTradeReceiver extends Thread {
             // TODO: dir und pos objekt erstellen
             // TODO: cost value aus der servernachricht ziehen
             // shipApp.sendDir();
-            shipApp.sendPos(null);
-            // shipApp.sendCost();
+           // shipApp.sendPos(null);
+            // 
+            valueLine = line.split(":")[2];
+            int money = Integer.parseInt(valueLine);
+            helpCommand = money+"";
+            shipApp.sendCost(money);
           }
         }
+        if (infoLine.equals("launched")) {
+       valueLine = line.split(":")[2];
+       int money = Integer.parseInt(valueLine);
+            shipApp.sendCost(money);
+          }
+
 // loaded
         if (infoLine.equals("loaded")) {
           shipApp.setLoaded(true);

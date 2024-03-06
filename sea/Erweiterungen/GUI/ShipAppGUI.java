@@ -370,7 +370,6 @@ public class ShipAppGUI extends ShipApp {
       shipApp.moveManualTo(direction);
       Thread.sleep(200);
       radarRequest();
-      send2CompanyReceiver("sendCost", 1000);
       // Load nur im Hafen möglich, sowie Auto-Move
       buttonsEnabled(getCenterGround() == Ground.HAFEN, "Load Cargo,Move");
       if (!shipApp.getSeaTradeReceiver().isAlive()) {
