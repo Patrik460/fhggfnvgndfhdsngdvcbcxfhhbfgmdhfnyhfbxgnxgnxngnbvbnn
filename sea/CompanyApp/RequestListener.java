@@ -68,7 +68,9 @@ public class RequestListener extends Thread {
         sendDir(value);
         break;
       case "sendProfit": // sendProfit:20000
-        sendProfit(value);
+        int profit = Integer.parseInt(value);
+        companyApp.addBalance(profit);
+       // sendProfit(value);
         break;
       case "sendCost":
     	int money = Integer.parseInt(value);

@@ -1,14 +1,15 @@
 package sea.ShipApp;
 
+import sea.Basis.Ground;
+import sea.CompanyApp.Cargo;
+
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import javax.swing.JOptionPane;
-import sea.Basis.Ground;
-import sea.CompanyApp.Cargo;
 
 public class SeaTradeReceiver extends Thread {
 
@@ -81,7 +82,10 @@ public class SeaTradeReceiver extends Thread {
 // unloaded				
         if (infoLine.equals("unloaded")) {
           shipApp.setLoaded(false);
-          shipApp.sendProfit(loadedCargo);
+          valueLine = line.split(":")[1];
+          int money = Integer.parseInt(valueLine);
+          shipApp.sendProfit(money);
+          loadedCargo = null;
         }
 
 // Radarnachrichten herausfiltern

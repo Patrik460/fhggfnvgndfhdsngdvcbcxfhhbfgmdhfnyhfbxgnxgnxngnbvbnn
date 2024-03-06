@@ -126,11 +126,13 @@ public class ShipAppGUI extends ShipApp {
 
   private void unloadCargoAction() {
     try {
-      shipApp.endOrder();
-      shipApp.sendProfit(getCargo());
-      shipApp.unloadCargo();
       Thread.sleep(500);
+      shipApp.endOrder();
+      shipApp.sendProfit(seaTradeReceiver.getLoadedCargo().getValue());
+      shipApp.unloadCargo();
       updateStatusLabel();
+      setLoaded(false);
+
     } catch (InterruptedException ex) {
       ex.printStackTrace();
     }
@@ -362,7 +364,7 @@ public class ShipAppGUI extends ShipApp {
         allEnabled(false);
         harbourDropdown.setEnabled(false);
         String head = "Sunken!";
-        String text = "Das Spiel ist vorbei!";
+        String text = "The Game is over!";
         JOptionPane.showMessageDialog(null, text, head, JOptionPane.INFORMATION_MESSAGE);
       }
     } catch (InterruptedException e) {

@@ -94,8 +94,9 @@ public class ShipApp {
   }
 
   public void loadCargo() {
-    send2SeaTradeReceiver("loadcargo", 100);
+    send2SeaTradeReceiver("loadcargo", 500);
     cargo = seaTradeReceiver.getLoadedCargo();
+    setCargo(cargo);
     setLoaded(true);
 
     if (cargo != null) {
@@ -104,11 +105,9 @@ public class ShipApp {
   }
 
   public void unloadCargo() {
-    send2SeaTradeReceiver("unloadcargo", 100);
-    send2CompanyReceiver("unloadcargo:" + cargo.getId(), 100);
+    send2SeaTradeReceiver("unloadcargo", 200);
+    //send2CompanyReceiver("unloadcargo:" + cargo.getId(), 100);
 
-    cargo = null;
-    setLoaded(false);
   }
 
   public void loseCargo() {
@@ -137,12 +136,12 @@ public class ShipApp {
 
   }
 
-  public void sendProfit(Cargo cargo) {
-    send2CompanyReceiver("sendprofit:" + cargo.getValue(), 100);
+  public void sendProfit(int profit) {
+    send2CompanyReceiver("sendProfit:" +profit, 1000);
   }
 
   public void sendCost(int cost) {
-	  send2CompanyReceiver("sendCost:" + cost, 300);
+	  send2CompanyReceiver("sendCost:" + cost, 400);
   }
 
   public void getRadarRequest() {
