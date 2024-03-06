@@ -73,7 +73,7 @@ public class ShipApp {
 
   public void loginSeaTrade(String shipName, String companyName) {
     // überprüfen
-    send2SeaTradeReceiver("loginseatrade:" + shipName + ":" + companyName, 100);
+    send2CompanyReceiver("loginseatrade:" + shipName + ":" + companyName, 100);
   }
 
   public void logoutCompany() {
@@ -82,15 +82,15 @@ public class ShipApp {
 
   public void logoutSeaTrade() {
     // überprüfen
-    send2SeaTradeReceiver("logoutseatrade:" + getName(), 100);
+    send2CompanyReceiver("logoutseatrade:" + getName(), 100);
   }
 
   public void receiveOrder() {
-    send2SeaTradeReceiver("receiveorder:" + getName(), 100);
+    send2CompanyReceiver("receiveorder:" + getName(), 100);
   }
 
   public void endOrder() {
-    send2SeaTradeReceiver("endorder:" + cargo.getId(), 100);
+    send2CompanyReceiver("endorder:" + cargo.getId(), 100);
   }
 
   public void loadCargo() {
@@ -113,7 +113,7 @@ public class ShipApp {
 
   public void loseCargo() {
     // überprüfen
-    send2SeaTradeReceiver("losecargo", 100);
+    send2CompanyReceiver("losecargo", 100);
   }
 
   public void moveTo(String harbour) {
@@ -125,11 +125,11 @@ public class ShipApp {
   }
 
   public void sendPos(Position position) {
-    send2SeaTradeReceiver("sendpos:" + position.getX() + ":" + position.getY(), 100);
+    send2CompanyReceiver("sendpos:" + position.getX() + ":" + position.getY(), 100);
   }
 
   public void sendDir(Direction direction) {
-    send2SeaTradeReceiver("senddir:" + direction.toString(), 100);
+    send2CompanyReceiver("senddir:" + direction.toString(), 100);
   }
 
   public void launch(String company, String harbour, String shipName) {
@@ -142,16 +142,12 @@ public class ShipApp {
   }
 
   public void sendCost(int cost) {
-    System.out.println("kost: "+cost);
-    
-	  send2CompanyReceiver("sendCost:" + cost, 1000);
-    
+	  send2CompanyReceiver("sendCost:" + cost, 300);
   }
 
   public void getRadarRequest() {
     // überprüfen
     send2SeaTradeReceiver("radarrequest", 900);
-
   }
 
   public void exit() {

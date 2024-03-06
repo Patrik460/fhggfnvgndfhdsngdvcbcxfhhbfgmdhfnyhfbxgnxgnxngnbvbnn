@@ -117,7 +117,7 @@ public class ShipAppGUI extends ShipApp {
       shipApp.receiveOrder();
       shipApp.loadCargo();
 
-      Thread.sleep(500);
+      Thread.sleep(1000);
       updateStatusLabel();
     } catch (InterruptedException ex) {
       ex.printStackTrace();
@@ -318,7 +318,7 @@ public class ShipAppGUI extends ShipApp {
       status = "Deactivated Features:";
     } else if (level == 1) {
       listenzeichen = "+ ";
-      status = "Deactivated Features:";
+      status = "Activated Features:";
     }
     levelInformation =
             "\r\n" + listenzeichen + "Move Manual\r\n" + listenzeichen + "RadarRequest\r\n"
