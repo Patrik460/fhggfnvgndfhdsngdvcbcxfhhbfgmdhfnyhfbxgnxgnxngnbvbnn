@@ -1,8 +1,13 @@
 package sea.CompanyApp;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,12 +42,10 @@ public class CompanyApp {
 
 	public void getHarbourInfo() {
 		send2Server("getinfo:harbour");
-
 	}
 
 	public void getCargoInfo() {
 		send2Server("getinfo:cargo");
-
 	}
 
 	public void send2Server(String message) {
@@ -55,7 +58,6 @@ public class CompanyApp {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public void send2Ship(ShipSession shipSession, String message) {
@@ -99,7 +101,6 @@ public class CompanyApp {
 	 */
 
 	public synchronized void shutdown() {
-		requestListener.closeServerSocket();
 		requestListener.interrupt(); // Interrupt the RequestListener thread
 
 		for (ShipSession shipSession : shipSessions) {
@@ -237,23 +238,18 @@ public class CompanyApp {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
-
 		return harbours;
-
 	}
 
 	private void closeRequestListener() {
 		if (this.requestListener != null) {
 			this.requestListener.interrupt(); // Unterbricht den RequestListener-Thread
 			try {
-				this.requestListener.closeServerSocket(); // Schließt den ServerSocket des RequestListeners
 				this.requestListener.join(); // Wartet darauf, dass der RequestListener-Thread beendet wird
 			} catch (InterruptedException e) {
 				System.err.println("Interrupted while closing request listener: " + e.getMessage());
 			}
 		}
 	}
-
 }

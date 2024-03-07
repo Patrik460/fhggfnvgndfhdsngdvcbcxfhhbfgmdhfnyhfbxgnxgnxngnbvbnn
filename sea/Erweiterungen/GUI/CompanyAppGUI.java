@@ -2,10 +2,7 @@ package sea.Erweiterungen.GUI;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -162,33 +159,34 @@ public class CompanyAppGUI {
 		if (!CompanyName.isEmpty()){
 				startServer();
 				companyApp.register(companyNameField.getText());
-				//addCompany(CompanyName.trim());
+				addCompany(companyNameField.getText());
+				companyApp.setCompName(companyNameField.getText().trim());
 				AllButtonEnabled(true);
 				ButtonsEnabled(false, "Register");
-			}
-		
+		}
 	}
-	  private void startServer() {
-		  companyApp.setReceiver(new Receiver());
+	private void startServer() {
+		companyApp.setReceiver(new Receiver());
 
-		    try {
-		      companyApp.getReceiver().start();
-		      companyApp.getReceiver().setCompanyApp(this.companyApp);
-
-		      Thread.sleep(1000);
-		    } catch (InterruptedException ex) {
+		try {
+			companyApp.getReceiver().start();
+			companyApp.getReceiver().setCompanyApp(this.companyApp);
+			Thread.sleep(1000);
+		} catch (InterruptedException ex) {
 		      ex.printStackTrace();
-		    }
-		  }
+		}
+	}
 
 	private void addCompany(String companyName) {
 		Connection connection = null;
 		try {
 			connection = connectToDatabase();
-			String sql = "INSERT INTO company (Name, Balance) VALUES (" + companyName + ", 5000000)";
+			String sql = "INSERT INTO company (Name, Balance) VALUES (?, 5000000)";
 
-			try (Statement statement = connection.createStatement()) {
-				statement.executeUpdate(sql);
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+				preparedStatement.setString(1, companyName);
+
+				preparedStatement.executeUpdate();
 			}
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, "Error adding company: " + e.getMessage(), "Error",
@@ -207,6 +205,7 @@ public class CompanyAppGUI {
 		companyApp.getCargoInfo();
 
 		String[] rc = companyApp.getReceiver().getReceivedCargos();
+		addCargosToDB(rc);
 
 		if (cargoDropdown != null) {
 			panel.remove(cargoDropdown); // Entferne die vorhandene JComboBox
@@ -216,13 +215,77 @@ public class CompanyAppGUI {
 		panel.repaint();
 	}
 
+	private void addCargosToDB(String[] cargos) {
+		Connection connection = null;
+
+		try {
+			connection = connectToDatabase();
+
+			for (String cargoInfo : cargos) {
+				String[] cargoValues = cargoInfo.split("\\|");
+
+				if (cargoValues.length == 5) {
+					int cargoID = Integer.parseInt(cargoValues[1]);
+					int value = Integer.parseInt(cargoValues[4]);
+					String harbourStart = cargoValues[2];
+					String harbourDest = cargoValues[3];
+
+					// Get HarbourIDStart and HarbourIDDest from the database based on the provided names
+					int harbourIDStart = getHarbourID(connection, harbourStart);
+					int harbourIDDest = getHarbourID(connection, harbourDest);
+
+					String sql = "INSERT INTO cargo (CargoID, Value, HarbourIDStart, HarbourIDDest, Status) VALUES (?, ?, ?, ?, 0)";
+
+					try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+						preparedStatement.setInt(1, cargoID);
+						preparedStatement.setInt(2, value);
+						preparedStatement.setInt(3, harbourIDStart);
+						preparedStatement.setInt(4, harbourIDDest);
+
+						int affectedRows = preparedStatement.executeUpdate();
+
+						if (affectedRows > 0) {
+							System.out.println("Cargo added successfully");
+						} else {
+							System.out.println("Error adding cargo");
+						}
+					}
+				}
+			}
+		} catch (SQLException | NumberFormatException e) {
+			JOptionPane.showMessageDialog(null, "Error adding cargos: " + e.getMessage(), "Error",
+					JOptionPane.ERROR_MESSAGE);
+		} finally {
+			closeDatabaseConnection(connection);
+		}
+	}
+
+	private int getHarbourID(Connection connection, String harbourName) throws SQLException {
+		String sql = "SELECT HarbourID FROM harbour WHERE Name = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, harbourName);
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getInt("HarbourID");
+				}
+				return -1; // Return -1 if the harbour is not found
+			}
+		}
+	}
+
 	private void orderShip() {
 		updateBalanceLabel();
 		companyApp.distributeOrder();
 	}
 
 	private Connection connectToDatabase() throws SQLException {
-		String jdbcUrl = "jdbc:mysql://localhost:3305/seatradedb";
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
+		String jdbcUrl = "jdbc:mysql://localhost:3306/seatradedb";
 		String username = "root";
 		String password = "";
 
