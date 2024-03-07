@@ -21,6 +21,8 @@ public class ShipAppGUI extends ShipApp {
   private JFrame frame;
   private final ShipApp shipApp;
   private SeaTradeReceiver seaTradeReceiver;
+
+  private static String helpCommand;
   private JPanel panel;
   private Direction direction = Direction.WEST;
   private JTextArea statusLabel;
@@ -193,8 +195,17 @@ public class ShipAppGUI extends ShipApp {
       shipApp.endOrder();
       shipApp.sendProfit(seaTradeReceiver.getLoadedCargo().getValue());
       shipApp.unloadCargo();
-      updateStatusLabel();
       setLoaded(false);
+
+      StringBuilder text = new StringBuilder();
+
+          text.append("No Cargo,\nwork harder!");
+
+
+      statusLabel.setText(text.toString());
+      panel.repaint();
+      panel.revalidate();
+
 
     } catch (InterruptedException ex) {
       ex.printStackTrace();
@@ -296,10 +307,10 @@ public class ShipAppGUI extends ShipApp {
     }
   }
 
-  private void updateStatusLabel() {
+  private void updateStatusLabel() throws InterruptedException {
     StringBuilder text = new StringBuilder();
     Cargo loadedCargo = seaTradeReceiver.getLoadedCargo();
-
+    Thread.sleep(2000);
     if (shipApp.isLoaded()) {
       if (loadedCargo != null) {
         text.append("CARGO INFORMATION").append("\nID: " + loadedCargo.getId())

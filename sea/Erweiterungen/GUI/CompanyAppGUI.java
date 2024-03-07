@@ -1,20 +1,12 @@
 package sea.Erweiterungen.GUI;
 
-import java.awt.Component;
-import java.awt.event.ActionListener;
-import java.sql.*;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.Timer;
-import javax.swing.WindowConstants;
 import sea.CompanyApp.CompanyApp;
 import sea.CompanyApp.Receiver;
-import sea.ShipApp.SeaTradeReceiver;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class CompanyAppGUI {
 
@@ -69,11 +61,11 @@ public class CompanyAppGUI {
 		addButton(panel, "Harbours", 80, 100, 160, 25, e -> showHarbourInfo());
 		addButton(panel, "Cargos", 250, 100, 160, 25, e -> showCargoInfo());
 
-		String[] shipOptions = {"Ship1", "Ship2", "Ship3"};
-		shipDropdown = addComboBox(panel, shipOptions, 80, 180, 160, 25);
+		//String[] shipOptions = {"Ship1", "Ship2", "Ship3"};
+		//shipDropdown = addComboBox(panel, shipOptions, 80, 180, 160, 25);
 
 // Button für Order und Label für Cargo
-		addButton(panel, "Order", 250, 180, 160, 65, e -> orderShip());
+		//addButton(panel, "Order", 250, 180, 160, 65, e -> orderShip());
 		addLabel(panel, "Cargo:", 10, 140, 80, 25);
 
 // Exit Button
@@ -155,7 +147,7 @@ public class CompanyAppGUI {
 
 	private void registerCompany() {
 		String CompanyName = companyNameField.getText().trim();
-	    
+
 		if (!CompanyName.isEmpty()){
 				startServer();
 				companyApp.register(companyNameField.getText());

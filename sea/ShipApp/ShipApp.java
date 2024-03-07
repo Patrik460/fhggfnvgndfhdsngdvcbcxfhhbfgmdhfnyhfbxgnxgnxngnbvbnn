@@ -100,7 +100,7 @@ public class ShipApp {
     setLoaded(true);
 
     if (cargo != null) {
-      send2CompanyReceiver("loadcargo:" + cargo.getId(), 100);
+     // send2CompanyReceiver("loadcargo:" + cargo.getId(), 100);
     }
   }
 
