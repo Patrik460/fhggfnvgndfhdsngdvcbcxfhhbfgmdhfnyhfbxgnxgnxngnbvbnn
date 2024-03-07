@@ -55,7 +55,7 @@ public class RequestListener extends Thread {
     String command = getCommand(inputLine);
     String value = getValue(inputLine);
 
-    switch (command) {     
+    switch (command) {
       case "sendPos": // sendPos:12,18
         sendPos(value);
         break;
@@ -68,8 +68,8 @@ public class RequestListener extends Thread {
         sendProfit(value);
         break;
       case "sendCost":
-    	int money = Integer.parseInt(value);
-    	if(value == "") {money = 1000;}
+        int money = Integer.parseInt(value);
+        if(value == "") {money = 1000;}
         companyApp.addBalance(-money);
         sendCost(value);
         break;
@@ -299,6 +299,6 @@ public class RequestListener extends Thread {
 
   private void displayMessageWindow(String message) {
     JOptionPane.showMessageDialog(null, message, "Instant Message",
-        JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.INFORMATION_MESSAGE);
   }
 }
