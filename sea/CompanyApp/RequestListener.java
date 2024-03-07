@@ -4,10 +4,7 @@ import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class RequestListener extends Thread {
 
@@ -51,8 +48,6 @@ public class RequestListener extends Thread {
 
     } catch (IOException e) {
       System.out.println("IOException in RequestListener: " + e.getMessage());
-    } finally {
-      closeServerSocket();
     }
   }
 
@@ -70,13 +65,13 @@ public class RequestListener extends Thread {
       case "sendProfit": // sendProfit:20000
         int profit = Integer.parseInt(value);
         companyApp.addBalance(profit);
-       // sendProfit(value);
+        sendProfit(value);
         break;
       case "sendCost":
     	int money = Integer.parseInt(value);
     	if(value == "") {money = 1000;}
         companyApp.addBalance(-money);
-        //sendCost(value);
+        sendCost(value);
         break;
       case "receiveOrder": // receiveOrder:AIDA ??
         receiveOrder(value);
@@ -97,65 +92,111 @@ public class RequestListener extends Thread {
 
   private void sendCost(String value) {
     String companyName = companyApp.getCompName();
-    String sql = "UPDATE company SET Balance = Balance - " + value + " WHERE Name = " + companyName;
-    Connection connection;
+    Connection connection = null;
     try {
       connection = connectToDatabase();
-      updateCompanyBalance(connection, sql);
-      closeDatabaseConnection(connection);
+      String sql = "UPDATE company SET Balance = Balance - ? WHERE Name = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, value);
+        preparedStatement.setString(2, companyName);
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Company balance updated");
+        } else {
+          out.println("No company found with the specified name: " + companyName);
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating balance: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
-//TODO: Login und Logout gehören in ShipSession
-  /*
-   * private void login(String shipName) { out.println(shipName +
-   * " has logged in."); ShipSession shipSession = new
-   * ShipSession(companyApp.getCompanyApp(), cSocket);
-   * shipSession.AddShip(shipSession.GetSocket()); }
-   */
-
   private void sendProfit(String value) {
     String companyName = companyApp.getCompName();
-    String sql = "UPDATE company SET Balance = Balance + " + value + " WHERE Name = " + companyName;
-    Connection connection;
+    Connection connection = null;
     try {
       connection = connectToDatabase();
-      updateCompanyBalance(connection, sql);
-      closeDatabaseConnection(connection);
+      String sql = "UPDATE company SET Balance = Balance + ? WHERE Name = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, value);
+        preparedStatement.setString(2, companyName);
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Company balance updated");
+        } else {
+          out.println("No company found with the specified name: " + companyName);
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating balance: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
   private void sendDir(String value) {
-    String sql =
-        "UPDATE ship SET Direction = '" + value + "' WHERE Name = '" + companyApp.getCompName()
-            + "'";
-    Connection connection;
+    Connection connection = null;
     try {
       connection = connectToDatabase();
-      updateShipDirection(connection, sql);
-      closeDatabaseConnection(connection);
+      String sql = "UPDATE ship SET Direction = ? WHERE Name = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, value);
+        preparedStatement.setString(2, companyApp.getCompName());
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Ship direction updated");
+        } else {
+          out.println("No ship found with the specified name: " + companyApp.getCompName());
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating ship direction: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
   private void sendPos(String value) {
-    String[] positionValues = value.split(",");
-    String PosX = positionValues[0].trim();
-    String PosY = positionValues[1].trim();
-    String sql = "UPDATE ship SET PosX = " + PosX + ", PosY = " + PosY + " WHERE Name = "
-        + companyApp.getCompName();
-    Connection connection;
+    Connection connection = null;
     try {
       connection = connectToDatabase();
-      updateShipPosition(connection, sql);
-      closeDatabaseConnection(connection);
+      String[] positionValues = value.split(",");
+      String posX = positionValues[0].trim();
+      String posY = positionValues[1].trim();
+      String sql = "UPDATE ship SET PosX = ?, PosY = ? WHERE Name = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, posX);
+        preparedStatement.setString(2, posY);
+        preparedStatement.setString(3, companyApp.getCompName());
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Ship position updated");
+        } else {
+          out.println("No ship found with the specified name: " + companyApp.getCompName());
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating ship position: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
@@ -180,33 +221,66 @@ public class RequestListener extends Thread {
   }
 
   private void loadCargo(String cargoID) {
-    String sql = "UPDATE cargo SET Status = 1 WHERE CargoID = " + cargoID;
-    Connection connection;
+    Connection connection = null;
 
     try {
       connection = connectToDatabase();
-      updateCargoStatus(connection, sql);
-      closeDatabaseConnection(connection);
+      String sql = "UPDATE cargo SET Status = 1 WHERE CargoID = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, cargoID);
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Cargo status updated");
+        } else {
+          out.println("No cargo found with the specified ID: " + cargoID);
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating cargo status: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
   private void unloadCargo(String cargoID) {
-    String sql = "UPDATE cargo SET Status = 2 WHERE CargoID = " + cargoID;
-    Connection connection;
+    Connection connection = null;
 
     try {
       connection = connectToDatabase();
-      updateCargoStatus(connection, sql);
-      closeDatabaseConnection(connection);
+      String sql = "UPDATE cargo SET Status = 2 WHERE CargoID = ?";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        preparedStatement.setString(1, cargoID);
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          out.println("Cargo status updated");
+        } else {
+          out.println("No cargo found with the specified ID: " + cargoID);
+        }
+      }
     } catch (SQLException e) {
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Error updating cargo status: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
     }
   }
 
   private Connection connectToDatabase() throws SQLException {
-    String jdbcUrl = "jdbc:mysql://localhost:3305/seatradedb";
+// Load the MySQL JDBC driver
+    try {
+      Class.forName("com.mysql.cj.jdbc.Driver");
+    } catch (ClassNotFoundException e1) {
+      e1.printStackTrace();
+    }
+
+    String jdbcUrl = "jdbc:mysql://localhost:3306/seatradedb";
     String username = "root";
     String password = "";
 
@@ -223,56 +297,8 @@ public class RequestListener extends Thread {
     }
   }
 
-  private void updateCompanyBalance(Connection connection, String sql) {
-    try {
-      try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate(sql);
-        out.println("Company balance updated");
-      }
-    } catch (SQLException e) {
-      System.out.println("Error updating company balance: " + e.getMessage());
-    }
-  }
-
-  private void updateCargoStatus(Connection connection, String sql) {
-    try {
-      try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate(sql);
-        out.println("Cargo status updated");
-      }
-    } catch (SQLException e) {
-      System.out.println("Error updating cargo status: " + e.getMessage());
-    }
-  }
-
-  private void updateShipDirection(Connection connection, String sql) {
-    try {
-      try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate(sql);
-        out.println("Ship direction updated");
-      }
-    } catch (SQLException e) {
-      System.out.println("Error updating ship direction: " + e.getMessage());
-    }
-  }
-
-  private void updateShipPosition(Connection connection, String sql) {
-    try {
-      try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate(sql);
-        out.println("Ship position updated");
-      }
-    } catch (SQLException e) {
-      System.out.println("Error updating ship position: " + e.getMessage());
-    }
-  }
-
   private void displayMessageWindow(String message) {
     JOptionPane.showMessageDialog(null, message, "Instant Message",
         JOptionPane.INFORMATION_MESSAGE);
-  }
-
-  public void closeServerSocket() {
-    // TODO
   }
 }

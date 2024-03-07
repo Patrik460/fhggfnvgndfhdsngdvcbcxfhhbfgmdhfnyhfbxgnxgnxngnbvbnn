@@ -11,6 +11,7 @@ import sea.ShipApp.ShipApp;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.sql.*;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Locale;
@@ -53,7 +54,6 @@ public class ShipAppGUI extends ShipApp {
   public void placeComponents() {
     panel.setLayout(null);
 
-    // Grundlegende Komponenten hinzufügen
     addLabel(panel, "Name:", 10, 20, 80, 25);
     shipNameField = addTextField(panel, 100, 20, 160, 25);
 
@@ -91,6 +91,7 @@ public class ShipAppGUI extends ShipApp {
     String shipName = shipNameField.getText().trim();
     String companyName = companyNameField.getText().trim();
     String selectedHarbour = harbourDropdown.getSelectedItem().toString().toLowerCase();
+    addShipToDB(shipName,companyName,selectedHarbour);
 
     if (!shipName.isEmpty() && !companyName.isEmpty()) {
       startServer();
@@ -103,6 +104,68 @@ public class ShipAppGUI extends ShipApp {
       } else {
         startSettings();
         showConnectionInformations();
+      }
+    }
+  }
+
+  private void addShipToDB(String shipName, String companyName, String selectedHarbour) {
+    Connection connection = null;
+
+    try {
+      connection = connectToDatabase();
+
+      // Get HarbourID and CompanyID from the database based on the provided names
+      int harbourID = getHarbourID(connection, selectedHarbour);
+      int companyID = getCompanyID(connection, companyName);
+
+      String sql = "INSERT INTO ship (Name, PosX, PosY, Direction, HarbourID, CompanyID) VALUES (?, ?, ?, ?, ?, ?)";
+
+      try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        preparedStatement.setString(1, shipName);
+        preparedStatement.setInt(2, 0); // Set initial PosX to 0
+        preparedStatement.setInt(3, 0); // Set initial PosY to 0
+        preparedStatement.setString(4, "NONE"); // Set initial Direction to NONE
+        preparedStatement.setInt(5, harbourID);
+        preparedStatement.setInt(6, companyID);
+
+        int affectedRows = preparedStatement.executeUpdate();
+
+        if (affectedRows > 0) {
+          System.out.println("Ship added successfully");
+        } else {
+          System.out.println("Error adding ship");
+        }
+      }
+    } catch (SQLException e) {
+      JOptionPane.showMessageDialog(null, "Error adding ship: " + e.getMessage(), "Error",
+              JOptionPane.ERROR_MESSAGE);
+    } finally {
+      closeDatabaseConnection(connection);
+    }
+  }
+
+  private int getHarbourID(Connection connection, String harbourName) throws SQLException {
+    String sql = "SELECT HarbourID FROM harbour WHERE Name = ?";
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+      preparedStatement.setString(1, harbourName);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        if (resultSet.next()) {
+          return resultSet.getInt("HarbourID");
+        }
+        return -1; // Return -1 if the harbour is not found
+      }
+    }
+  }
+
+  private int getCompanyID(Connection connection, String companyName) throws SQLException {
+    String sql = "SELECT CompanyID FROM company WHERE Name = ?";
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+      preparedStatement.setString(1, companyName);
+      try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        if (resultSet.next()) {
+          return resultSet.getInt("CompanyID");
+        }
+        return -1; // Return -1 if the company is not found
       }
     }
   }
@@ -431,6 +494,31 @@ public class ShipAppGUI extends ShipApp {
       case EIS -> Color.WHITE;
       case NICHTS -> Color.BLACK;
     };
+  }
+
+  private Connection connectToDatabase() throws SQLException {
+// Load the MySQL JDBC driver
+    try {
+      Class.forName("com.mysql.cj.jdbc.Driver");
+    } catch (ClassNotFoundException e1) {
+      e1.printStackTrace();
+    }
+
+    String jdbcUrl = "jdbc:mysql://localhost:3305/seatradedb";
+    String username = "root";
+    String password = "";
+
+    return DriverManager.getConnection(jdbcUrl, username, password);
+  }
+
+  private void closeDatabaseConnection(Connection connection) {
+    try {
+      if (connection != null && !connection.isClosed()) {
+        connection.close();
+      }
+    } catch (SQLException e) {
+      System.out.println("Error closing database connection: " + e.getMessage());
+    }
   }
 
   public static void main(String[] args) {
